@@ -12,7 +12,7 @@ Standalone React, TypeScript, and Vite project for the public Conversim website.
 
 ## Local setup
 
-Use Node.js 22 (or Node.js 20.19+), then:
+Use Node.js 22.19 or newer, then:
 
 ```sh
 npm install

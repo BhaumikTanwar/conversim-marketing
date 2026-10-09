@@ -3,6 +3,7 @@ import path from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import mkcert from "vite-plugin-mkcert";
 import { PAGE_META, DEFAULT_SITE, fillSeo } from "./src/seo.ts";
 
 function seoPages(site: string): Plugin {
@@ -48,7 +49,7 @@ export default defineConfig(({ mode }) => {
   const site = (env.VITE_SITE_URL || DEFAULT_SITE).replace(/\/+$/, "");
 
   return {
-    plugins: [react(), tailwindcss(), seoPages(site)],
+    plugins: [react(), tailwindcss(), mkcert(), seoPages(site)],
     resolve: { alias: { "@": path.resolve(import.meta.dirname, "./src") } },
     build: { chunkSizeWarningLimit: 600 },
   };
