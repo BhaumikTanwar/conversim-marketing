@@ -1,0 +1,551 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@custom-variant data-open {
+  &:where([data-state="open"]),
+  &:where([data-open]:not([data-open="false"])) {
+    @slot;
+  }
+}
+
+@custom-variant data-closed {
+  &:where([data-state="closed"]),
+  &:where([data-closed]:not([data-closed="false"])) {
+    @slot;
+  }
+}
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║  CONVERSIM — "Nightfall Spectrum"                             ║
+   ║  Indigo → blue → cyan as the dominant gradient identity, on   ║
+   ║  cool slate neutrals. Tailwind's own indigo/violet/purple/    ║
+   ║  fuchsia/blue/cyan scales are left at their real defaults so  ║
+   ║  every existing utility class shows its true, vivid hue.      ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+@theme {
+  /* ── Brand: indigo → blue → cyan ── */
+  --color-brand: #2563eb;
+  --color-brand-light: #06b6d4;
+  --color-brand-hover: #4338ca;
+  --gradient-brand: linear-gradient(135deg, #4f46e5 0%, #2563eb 50%, #0891b2 100%);
+
+  /* ── Accent scale (blue-anchored; backs badges and "subtle" UI) ── */
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-200: #bfdbfe;
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+  --color-accent-800: #1e40af;
+  --color-accent-900: #1e3a8a;
+  --color-accent-950: #172554;
+
+  /* ── Cool slate neutrals ── */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* ── Surfaces ── */
+  --color-aurora-bg: #f8fafc;
+  --color-aurora-surface: #ffffff;
+  --color-aurora-surface-2: #f1f5f9;
+  --color-aurora-surface-3: #e2e8f0;
+  --color-aurora-border: rgba(15, 23, 42, 0.08);
+  --color-aurora-border-subtle: rgba(15, 23, 42, 0.05);
+
+  /* ── Accent (legacy names) ── */
+  --color-aurora-cyan: #0891b2;
+  --color-aurora-cyan-dim: rgba(8, 145, 178, 0.08);
+
+  /* ── Text ── */
+  --color-aurora-text: #0f172a;
+  --color-aurora-text-2: #475569;
+  --color-aurora-text-3: #64748b;
+
+  /* ── Status ── */
+  --color-aurora-success: #2f9e6e;
+  --color-aurora-warning: #d99a2b;
+  --color-aurora-danger: #d64545;
+
+  /* ── Legacy compat ── */
+  --color-bg: #f8fafc;
+  --color-on-surface-variant: #475569;
+  --color-warning: #d99a2b;
+  --color-success: #2f9e6e;
+  --color-surface-light: #ffffff;
+  --color-danger: #d64545;
+  --color-muted: #64748b;
+
+  /* ── Typography ── */
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-geist: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* ── Depth: layered, indigo-tinted shadows (override Tailwind's flat black defaults app-wide) ── */
+  --shadow-2xs: 0 1px 1px rgb(15 23 42 / 0.05);
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 0.06), 0 0 0 1px rgb(15 23 42 / 0.02);
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05), 0 3px 8px -2px rgb(15 23 42 / 0.07);
+  --shadow-md: 0 2px 4px rgb(15 23 42 / 0.04), 0 8px 20px -6px rgb(15 23 42 / 0.1), 0 0 0 1px rgb(15 23 42 / 0.02);
+  --shadow-lg: 0 4px 8px rgb(15 23 42 / 0.04), 0 16px 36px -10px rgb(37 99 235 / 0.18), 0 6px 14px -6px rgb(15 23 42 / 0.08);
+  --shadow-xl: 0 8px 16px rgb(15 23 42 / 0.05), 0 28px 56px -16px rgb(37 99 235 / 0.24), 0 10px 20px -8px rgb(15 23 42 / 0.1);
+}
+
+:root {
+  font-feature-settings: "ss01", "cv11";
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* ── shadcn token mapping ── */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: var(--color-brand);
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: var(--color-brand);
+  --accent-foreground: #ffffff;
+  --destructive: #d64545;
+  --border: rgba(15, 23, 42, 0.08);
+  --input: rgba(15, 23, 42, 0.12);
+  --ring: var(--color-brand);
+  --radius: 0.625rem;
+
+  /* ── Sidebar ── */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: var(--color-brand);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: rgba(15, 23, 42, 0.08);
+  --sidebar-ring: var(--color-brand);
+}
+
+#root,
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+html {
+  scroll-padding-top: 80px;
+}
+
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+
+/* ── Hero dot-grid texture ── */
+.hero-dot-grid {
+  background-image: radial-gradient(circle, rgba(15,23,42,0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Aurora ambient background: indigo → blue → cyan glows ── */
+.aurora-bg {
+  background:
+    radial-gradient(ellipse 80% 55% at 10% -5%, rgba(79,70,229, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 40% at 90% 100%, rgba(8,145,178, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 60% 5%, rgba(37,99,235, 0.06) 0%, transparent 50%),
+    #f8fafc;
+}
+
+/* ── Film grain: fixed and pointer-events-none so it never repaints with scroll ── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Cursor spotlight: set --mx/--my from a pointer handler (no React state) ── */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgb(37 99 235 / 0.18), transparent 65%);
+  pointer-events: none;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ── Hand-drawn underline that draws in once, for a single emphasised word ── */
+@keyframes underline-draw {
+  from {
+    background-size: 0% 3px;
+  }
+  to {
+    background-size: 100% 3px;
+  }
+}
+.underline-draw {
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 96% / 0% 3px;
+  animation: underline-draw 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+}
+
+/* ── Gradient text: indigo → blue → cyan ── */
+.gradient-text {
+  background: var(--gradient-brand);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+/* ── Animations ── */
+@keyframes waveform-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.waveform-bar {
+  animation: waveform-pulse 1s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* Speaking rings — expand + fade out from avatar */
+@keyframes speaking-ring-expand {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+.speaking-ring {
+  animation: speaking-ring-expand 2s ease-out infinite;
+}
+
+/* Listening glow — gentle breathing */
+@keyframes listening-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.06);
+  }
+}
+
+.listening-glow {
+  animation: listening-breathe 2.8s ease-in-out infinite;
+}
+
+/* Nudge notifications */
+@keyframes nudge-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes nudge-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+@keyframes nudge-shrink {
+  from {
+    max-height: 80px;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+.animate-nudge-in {
+  animation: nudge-in 0.3s ease both;
+}
+.animate-nudge-out {
+  animation: nudge-out 0.25s ease both;
+}
+.animate-nudge-shrink {
+  animation: nudge-shrink 0.3s ease both;
+}
+
+/* ── Z-index layers ── */
+.z-content {
+  z-index: 1;
+}
+
+/* ── Hardware-accelerated Dialog Animations (60/120fps) ── */
+@keyframes dialog-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-content-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+}
+
+.dialog-overlay {
+  will-change: opacity;
+}
+.dialog-overlay[data-state="open"] {
+  animation: dialog-overlay-in 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.dialog-overlay[data-state="closed"] {
+  animation: dialog-overlay-out 100ms ease-in forwards;
+}
+
+.dialog-content {
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+.dialog-content[data-state="open"] {
+  animation: dialog-content-in 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.dialog-content[data-state="closed"] {
+  animation: dialog-content-out 100ms ease-in forwards;
+}
+
+/* ── Spin animation ── */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite !important;
+}
+
+/* Gradient arc spinner used by <Loader> — an SVG stroke that grows/shrinks (loader-dash) while the whole
+   svg spins (.animate-spin), giving the Material-style "chasing arc" instead of a static ring outline. */
+.loader-arc {
+  stroke-dasharray: 126;
+  animation: loader-dash 1.4s ease-in-out infinite;
+}
+@keyframes loader-dash {
+  0% {
+    stroke-dashoffset: 112;
+  }
+  50% {
+    stroke-dashoffset: 30;
+  }
+  100% {
+    stroke-dashoffset: 112;
+  }
+}
+
+/* Reduced motion - preserve critical loading spinners, plus the brief,
+   functional motion that IS the feedback for an action (toggle switches,
+   the live-nudge banner's reveal) rather than decorative polish. */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.animate-spin):not(.animate-spin *):not([data-slot="switch"]):not([data-slot="switch-thumb"]):not(
+      [data-slot="nudge-banner"]
+    ):not([data-slot="nudge-banner"] *),
+  *:not(.animate-spin):not(.animate-spin *):not([data-slot="switch"]):not([data-slot="switch-thumb"]):not(
+      [data-slot="nudge-banner"]
+    ):not([data-slot="nudge-banner"] *)::before,
+  *:not(.animate-spin):not(.animate-spin *):not([data-slot="switch"]):not([data-slot="switch-thumb"]):not(
+      [data-slot="nudge-banner"]
+    ):not([data-slot="nudge-banner"] *)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Typography & interaction polish ── */
+html {
+  scroll-behavior: smooth;
+}
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+h1 {
+  letter-spacing: -0.03em;
+}
+p,
+li {
+  text-wrap: pretty;
+}
+td,
+th,
+time,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+::selection {
+  background: rgba(37,99,235, 0.18);
+}
+:focus-visible {
+  outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Evaluation flow builder: wires "flow" toward the next step, confetti when the flow first becomes valid ── */
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+.flow-dash {
+  stroke-dasharray: 6 12;
+  animation: flow-dash 0.9s linear infinite;
+}
+@keyframes confetti-fall {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), 70vh) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confetti-fall 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+/* ── Evaluation run: a light sweep across the primary CTA so the next action is unmistakable ── */
+@keyframes cta-shine {
+  0%,
+  60% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-20deg);
+  }
+}
+.cta-shine {
+  position: relative;
+  overflow: hidden;
+}
+.cta-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  animation: cta-shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-dash {
+    animation: none;
+  }
+  .confetti-piece,
+  .cta-shine::after {
+    display: none;
+  }
+}

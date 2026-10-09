@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /attempts
+Disallow: /settings
+Disallow: /billing
+Disallow: /profile
+Disallow: /admin
+Disallow: /personas
+Disallow: /share/
+Disallow: /login
+
+Sitemap: https://conversim.co/sitemap.xml
