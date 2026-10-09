@@ -46,7 +46,7 @@ function normalizeCta(value: any) {
 
 function normalizeHeader(value: any): StoryblokBlock | undefined {
   const block = firstBlock(value);
-  if (!block) return undefined;
+  if (!block || block.visible === false) return undefined;
 
   const navigationItems = block.navigation_items ?? block.nav_items ?? [];
   return {
@@ -68,7 +68,7 @@ function normalizeHeader(value: any): StoryblokBlock | undefined {
 
 function normalizeFooter(value: any): StoryblokBlock | undefined {
   const block = firstBlock(value);
-  if (!block) return undefined;
+  if (!block || block.visible === false) return undefined;
 
   const columns = block.footer_columns ?? block.columns ?? [];
   return {
