@@ -468,6 +468,66 @@ Fields:
 
 Recommended logo format is SVG or a transparent PNG/WebP at least 320 px wide.
 
+### Content Filter
+
+**Technical component:** `content_filter`
+
+Use this directly above a Resource Grid when visitors need category buttons, search, or both. The active category uses a smooth animated highlight.
+
+Fields:
+
+- All label: optional replacement for “All”.
+- Categories: reorderable Filter Option widgets. Each label must match the Category text used on Resource Cards.
+- Show search: enables the search field.
+- Search placeholder: optional helper text inside the search field.
+- Filter group: advanced connection name. Use the same value on the Content Filter and Resource Grid; the default is `resources`.
+
+The filter and grid are intentionally separate. A Resource Grid works without a filter, and the filter can be omitted when all cards should remain visible.
+
+### Resource Grid and Resource Card
+
+**Technical components:** `resource_grid`, `resource_card`
+
+Use Resource Grid for a responsive collection of editorial cards such as guides, case studies, learning resources, comparisons, partnerships, product updates, or news. Resource Card is a nested widget and is added inside the grid rather than directly to a page.
+
+Resource Grid fields:
+
+- Optional heading and introduction.
+- Cards: reorderable Resource Card widgets.
+- Columns count: `2`, `3`, or `4`; the layout collapses responsively on smaller screens.
+- Layout: `default`, `centered`, `wide`, or `compact`.
+- Background: `white`, `soft`, or `transparent`.
+- Filter group: must match the Content Filter when filtering is required.
+- Empty message: displayed only when no cards match the active category or search.
+- Optional Section ID.
+
+Resource Card fields:
+
+- Optional image, category, description, author name, author image, date, and link label.
+- Title.
+- Optional destination and “open in a new tab” setting.
+
+Recommended card image: 1600×900 px (16:9), WebP or JPG, compressed for web delivery. Recommended author image: 400×400 px (1:1), WebP or JPG. These are recommendations, not upload limits. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
+
+### Customer Result
+
+**Technical component:** `customer_result`
+
+Use this for customer proof, outcome summaries, partnership results, or a compact case-study callout. It is not limited to case studies.
+
+Fields:
+
+- Optional eyebrow, company name, and company logo.
+- Heading and description.
+- Optional Results built from Statistic widgets, for example `60%` / `Faster ramp`.
+- Optional action label and destination. The button appears only when both are supplied.
+- Optional “open in a new tab” setting.
+- Layout: `default`, `wide`, or `compact`.
+- Background: `white`, `soft`, or `brand`.
+- Optional Section ID.
+
+Recommended logo: SVG where available, otherwise a transparent PNG/WebP on an approximately 800×240 px artboard. Metrics, logo, company name, and action are independent optional groups; omitting any of them does not leave blank space.
+
 ## 8. Section IDs and navigation
 
 Every rendered section receives an ID. Standard automatic IDs include:
@@ -482,6 +542,9 @@ Every rendered section receives an ID. Standard automatic IDs include:
 - `grid`
 - `feature`
 - `teaser`
+- `content-filter`
+- `resources`
+- `customer-result`
 
 Repeated sections receive numbered IDs such as `pricing-2`. Where a section exposes a Section ID field, the editor may provide a custom ID. Invalid characters are converted to hyphens, and duplicate IDs receive a numeric suffix.
 

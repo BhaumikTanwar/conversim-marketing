@@ -9,8 +9,11 @@ import Grid from "./components/Grid";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import HowItWorksSection from "./components/HowItWorksSection";
+import ContentFilterBar from "./components/ContentFilterBar";
+import CustomerResult from "./components/CustomerResult";
 import PreviewSection from "./components/PreviewSection";
 import PricingSection from "./components/PricingSection";
+import ResourceGrid from "./components/ResourceGrid";
 import SectorFAQ from "./components/SectorFAQ";
 import Teaser from "./components/Teaser";
 import UseCasesSection from "./components/UseCasesSection";
@@ -29,6 +32,9 @@ const sectionIds: Record<string, string> = {
   pricing: "pricing",
   faq: "faq",
   waitlist: "waitlist",
+  content_filter: "content-filter",
+  resource_grid: "resources",
+  customer_result: "customer-result",
 };
 
 const sectionComponents = new Set(Object.keys(sectionIds));
@@ -153,6 +159,25 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
     case "how_it_works":
       normalized.layout_variant = block.layout_variant ?? block.layout ?? "default";
       break;
+    case "content_filter":
+      normalized.filter_group = block.filter_group ?? block.group_name ?? "resources";
+      break;
+    case "resource_grid":
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "wide";
+      normalized.filter_group = block.filter_group ?? block.group_name ?? "resources";
+      normalized.cards = (Array.isArray(block.cards) ? block.cards : []).map(
+        (card: StoryblokBlock) => ({
+          ...card,
+          link_url: normalizeUrl(card.link_url ?? card.url),
+          open_in_new_tab: card.open_in_new_tab ?? card.open_new_tab,
+        }),
+      );
+      break;
+    case "customer_result":
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "wide";
+      normalized.cta_url = normalizeUrl(block.cta_url ?? block.url);
+      normalized.open_in_new_tab = block.open_in_new_tab ?? block.open_new_tab;
+      break;
     case "preview":
     case "faq":
     case "pricing":
@@ -269,6 +294,9 @@ const renderers: Record<string, ComponentType<{ blok?: any }>> = {
   pricing: PricingSection,
   faq: SectorFAQ,
   waitlist: WaitlistSection,
+  content_filter: ContentFilterBar,
+  resource_grid: ResourceGrid,
+  customer_result: CustomerResult,
 };
 
 export function StoryblokSections({ sections }: { sections: StoryblokBlock[] }) {
