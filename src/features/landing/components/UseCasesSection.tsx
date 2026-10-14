@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
+import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
 
 interface UseCaseItem {
   _uid?: string;
@@ -20,6 +21,7 @@ interface UseCasesBlok {
   component?: string;
   visible?: boolean;
   layout?: "default" | "centered" | "wide" | "compact" | string;
+  layout_variant?: string;
   heading?: string;
   intro?: string;
   items?: UseCaseItem[];
@@ -34,22 +36,25 @@ function UseCaseTile({
   useCase,
   index,
   useLargeFeatured,
+  sectionLayout,
 }: {
   useCase: UseCaseItem;
   index: number;
   useLargeFeatured: boolean;
+  sectionLayout: string;
 }) {
   const variant = useCase.layout_variant || "standard";
 
   const featured = variant === "featured";
   const wide = variant === "wide";
+  const compact = sectionLayout === "compact";
 
   const spanClass = featured
     ? useLargeFeatured
       ? "lg:col-span-2 lg:row-span-2"
       : "lg:col-span-2"
     : wide
-      ? "lg:col-span-3"
+      ? sectionLayout === "wide" ? "lg:col-span-2" : "lg:col-span-3"
       : "lg:col-span-1";
 
   return (
@@ -78,20 +83,20 @@ function UseCaseTile({
           `${e.clientY - r.top}px`,
         );
       }}
-      className={`spotlight group flex flex-col rounded-3xl p-7 md:p-9 transition-[background-color,border-color,box-shadow] duration-300 hover:shadow-lg ${spanClass} ${
+      className={`spotlight group flex flex-col rounded-3xl ${compact ? "p-5 md:p-6" : "p-7 md:p-9"} transition-[background-color,border-color,box-shadow] duration-300 hover:shadow-lg ${spanClass} ${
         featured
           ? "bg-accent-900 text-white justify-between min-h-[22rem]"
           : "bg-accent-50 border border-accent-100 hover:border-accent-300"
       }`}
     >
-      <span
+      {useCase.icon && <span
         className={`material-symbols-outlined text-3xl mb-8 ${
           featured ? "text-accent-300" : "text-brand"
         }`}
         aria-hidden="true"
       >
-        {useCase.icon || "auto_awesome"}
-      </span>
+        {useCase.icon}
+      </span>}
 
       <div
         className={
@@ -101,7 +106,7 @@ function UseCaseTile({
         }
       >
         <div className="max-w-md">
-          <h3
+          {useCase.title && <h3
             className={`font-semibold mb-2 ${
               featured
                 ? "text-3xl md:text-4xl"
@@ -109,9 +114,9 @@ function UseCaseTile({
             }`}
           >
             {useCase.title}
-          </h3>
+          </h3>}
 
-          <p
+          {useCase.description && <p
             className={`leading-relaxed ${
               featured
                 ? "text-accent-100/85 text-base"
@@ -119,7 +124,7 @@ function UseCaseTile({
             }`}
           >
             {useCase.description}
-          </p>
+          </p>}
         </div>
 
         {useCase.detail && (
@@ -145,16 +150,14 @@ export default function UseCasesSection({
     return null;
   }
 
-  const heading =
-    blok?.heading ||
-    "Practice the conversations that are hard to get right.";
+  const heading = blok ? blok.heading?.trim() : "Practice the conversations that are hard to get right.";
 
-  const intro =
-    blok?.intro ||
-    "Each persona is built around a specific situation, so a team can rehearse it as many times as it takes.";
+  const intro = blok
+    ? blok.intro?.trim()
+    : "Each persona is built around a specific situation, so a team can rehearse it as many times as it takes.";
 
-  const items = blok?.items?.length
-    ? blok.items
+  const items = blok
+    ? (blok.items ?? []).filter((item) => item.title || item.description || item.detail || item.icon)
     : [
         {
           icon: "trending_up",
@@ -188,7 +191,7 @@ export default function UseCasesSection({
         },
       ];
 
-  const layout = blok?.layout || "default";
+  const layout = (blok?.layout_variant || blok?.layout || "default").toLowerCase().replace(/[\s-]+/g, "_");
 
   const featuredCount = items.filter(
     (item) => item.layout_variant === "featured",
@@ -196,10 +199,7 @@ export default function UseCasesSection({
 
   const useLargeFeatured = featuredCount === 1;
 
-  const containerClass =
-    layout === "wide"
-      ? "max-w-[1440px] 3xl:max-w-[1760px]"
-      : "max-w-[1280px] 2xl:max-w-[1440px]";
+  const containerClass = sectionContainer(layout);
 
   const headingAlignment =
     layout === "centered"
@@ -211,29 +211,24 @@ export default function UseCasesSection({
       ? "mx-auto text-center"
       : "";
 
-  const sectionSpacing =
-    layout === "compact"
-      ? "py-14 md:py-20 lg:py-24"
-      : "py-20 md:py-28 lg:py-36";
+  const spacingClass = sectionSpacing(layout);
 
   const headingMargin =
     layout === "compact"
       ? "mb-8 md:mb-10"
       : "mb-12 md:mb-16";
 
-  const gridGap =
-    layout === "compact"
-      ? "gap-3"
-      : "gap-4";
+  const gridGap = layout === "compact" ? "gap-3" : layout === "wide" ? "gap-6" : "gap-4";
+  const gridColumns = layout === "compact" ? "lg:grid-cols-2" : layout === "wide" ? "lg:grid-cols-4" : "lg:grid-cols-3";
 
   return (
     <section
       {...(blok ? storyblokEditable(blok as any) : {})}
-      className={`${sectionSpacing} px-4 sm:px-6 lg:px-8`}
+      className={`${spacingClass} px-4 sm:px-6 lg:px-8`}
       id={blok?.section_id || "use-cases"}
     >
       <div className={`${containerClass} mx-auto`}>
-        <motion.div
+        {(heading || intro) && <motion.div
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
@@ -243,19 +238,19 @@ export default function UseCasesSection({
           }}
           className={`${headingMargin} max-w-3xl ${headingAlignment}`}
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 leading-[1.05]">
+          {heading && <h2 className={`${sectionHeadingClass} text-slate-900`}>
             {heading}
-          </h2>
+          </h2>}
 
-          <p
+          {intro && <p
             className={`${introAlignment} text-slate-600 text-base md:text-lg leading-relaxed mt-5 max-w-[65ch]`}
           >
             {intro}
-          </p>
-        </motion.div>
+          </p>}
+        </motion.div>}
 
         <div
-          className={`grid md:grid-cols-2 lg:grid-cols-3 ${gridGap} lg:auto-rows-auto lg:grid-flow-dense`}
+          className={`grid md:grid-cols-2 ${gridColumns} ${gridGap} lg:auto-rows-auto lg:grid-flow-dense`}
         >
           {items.map((useCase, index) => (
             <UseCaseTile
@@ -263,6 +258,7 @@ export default function UseCasesSection({
               useCase={useCase}
               index={index}
               useLargeFeatured={useLargeFeatured}
+              sectionLayout={layout}
             />
           ))}
         </div>

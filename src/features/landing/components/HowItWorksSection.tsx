@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
+import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
 
 interface HowItWorksStep {
   _uid?: string;
@@ -10,6 +11,7 @@ interface HowItWorksStep {
   icon?: string;
   title?: string;
   description?: string;
+  layout_variant?: string;
 }
 
 interface HowItWorksBlok {
@@ -20,6 +22,8 @@ interface HowItWorksBlok {
   heading?: string;
   intro?: string;
   steps?: HowItWorksStep[];
+  layout?: string;
+  layout_variant?: string;
   section_id?: string;
 }
 
@@ -53,26 +57,30 @@ export default function HowItWorksSection({
 }: HowItWorksSectionProps) {
   if (blok?.visible === false) return null;
 
-  const heading =
-    blok?.heading ||
-    "From a folder of docs to a live simulation in an afternoon.";
+  const heading = blok
+    ? blok.heading?.trim()
+    : "From a folder of docs to a live simulation in an afternoon.";
 
-  const intro =
-    blok?.intro ||
-    "No scripting engine and no integration project. Three steps, and the last one is a URL.";
+  const intro = blok
+    ? blok.intro?.trim()
+    : "No scripting engine and no integration project. Three steps, and the last one is a URL.";
 
-  const steps =
-    blok?.steps && blok.steps.length > 0
-      ? blok.steps
-      : defaultSteps;
+  const steps = blok
+    ? (blok.steps ?? []).filter((step) => step.title || step.description || step.icon)
+    : defaultSteps;
+  const layout = (blok?.layout_variant || blok?.layout || "default").toLowerCase().replace(/[\s-]+/g, "_");
+  const cards = layout === "cards" || layout === "grid" || layout === "card_grid";
+  const compact = layout === "compact";
+  const centered = layout === "centered" || layout === "center";
+  const wide = layout === "wide";
 
   return (
     <section
       {...(blok ? storyblokEditable(blok as any) : {})}
-      className="py-20 md:py-28 lg:py-36 px-4 sm:px-6 lg:px-8 bg-slate-100/70"
+      className={`${sectionSpacing(layout)} px-4 sm:px-6 lg:px-8 bg-slate-100/70`}
       id={blok?.section_id || "how-it-works"}
     >
-      <div className="max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-24">
+      <div className={`${sectionContainer(wide ? "wide" : layout)} mx-auto ${cards || centered ? "" : "grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"} gap-10 lg:gap-16`}>
 
         {/* LEFT SIDE */}
         <motion.div
@@ -80,19 +88,19 @@ export default function HowItWorksSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="lg:sticky lg:top-28 self-start"
+          className={cards || centered ? `max-w-3xl mb-10 ${centered ? "mx-auto text-center" : ""}` : "lg:sticky lg:top-28 self-start"}
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 leading-[1.05] mb-6">
+          {heading && <h2 className={`${sectionHeadingClass} text-slate-900 mb-5`}>
             {heading}
-          </h2>
+          </h2>}
 
-          <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-md">
+          {intro && <p className={`text-slate-600 text-base md:text-lg leading-relaxed max-w-md ${centered ? "mx-auto" : ""}`}>
             {intro}
-          </p>
+          </p>}
         </motion.div>
 
         {/* RIGHT SIDE */}
-        <ol className="relative">
+        <ol className={`relative ${cards ? "grid md:grid-cols-3 gap-4" : centered ? "max-w-3xl mx-auto" : ""}`}>
           {steps.map((step, index) => (
             <motion.li
               key={step._uid || `${step.title}-${index}`}
@@ -104,29 +112,29 @@ export default function HowItWorksSection({
                 delay: index * 0.05,
                 ease: EASE,
               }}
-              className={`py-9 md:py-12 border-t border-slate-300/70 ${
+              className={`${cards ? "rounded-2xl border border-slate-300/70 p-6" : "py-9 md:py-12 border-t border-slate-300/70"} ${compact ? "py-6 md:py-8" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "featured") ? "bg-white rounded-2xl px-6 shadow-sm" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "compact") ? "py-5" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "wide") ? cards ? "md:col-span-2" : "lg:-ml-10 lg:pl-10 bg-white rounded-2xl shadow-sm" : ""} ${
                 index === steps.length - 1 ? "border-b" : ""
-              } ${index === 1 ? "lg:ml-10" : ""}`}
+              } ${(step.layout_variant || "").toLowerCase() === "indented" || (!step.layout_variant && !cards && !centered && index === 1) ? "lg:ml-10" : ""}`}
             >
               <div>
                 <div className="flex items-center gap-4 mb-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-brand">
+                  {step.icon && <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-brand">
                     <span
                       className="material-symbols-outlined text-2xl"
                       aria-hidden="true"
                     >
-                      {step.icon || "auto_awesome"}
+                      {step.icon}
                     </span>
-                  </span>
+                  </span>}
 
-                  <h3 className="text-xl md:text-2xl font-semibold text-slate-900">
+                  {step.title && <h3 className="text-xl md:text-2xl font-semibold text-slate-900">
                     {step.title}
-                  </h3>
+                  </h3>}
                 </div>
 
-                <p className="text-slate-600 leading-relaxed max-w-lg">
+                {step.description && <p className="text-slate-600 leading-relaxed max-w-lg">
                   {step.description}
-                </p>
+                </p>}
               </div>
             </motion.li>
           ))}

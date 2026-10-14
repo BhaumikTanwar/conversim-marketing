@@ -43,9 +43,18 @@ function MainAppRedirect() {
   return <Loader label="Opening Conversim app…" />;
 }
 
+function HomeRedirect() {
+  const { search, hash } = useLocation();
+  useEffect(() => {
+    window.location.replace(`/${search}${hash}`);
+  }, [search, hash]);
+  return <Loader label="Opening homepage…" />;
+}
+
 export default function App() {
   const routes = useRoutes([
     { path: "/", element: <Landing /> },
+    { path: "/home", element: <HomeRedirect /> },
     { path: "/sales-roleplay", element: <SalesRoleplay /> },
     { path: "/healthcare", element: <HealthcareLanding /> },
     { path: "/pharma", element: <PharmaLanding /> },

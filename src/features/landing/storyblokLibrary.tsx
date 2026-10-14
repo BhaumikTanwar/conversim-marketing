@@ -4,18 +4,24 @@
 import type { ComponentType } from "react";
 
 import Footer from "./components/Footer";
+import Feature from "./components/Feature";
+import Grid from "./components/Grid";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import HowItWorksSection from "./components/HowItWorksSection";
 import PreviewSection from "./components/PreviewSection";
 import PricingSection from "./components/PricingSection";
 import SectorFAQ from "./components/SectorFAQ";
+import Teaser from "./components/Teaser";
 import UseCasesSection from "./components/UseCasesSection";
 import WaitlistSection from "./components/WaitlistSection";
 
 export type StoryblokBlock = Record<string, any>;
 
 const sectionIds: Record<string, string> = {
+  grid: "grid",
+  feature: "feature",
+  teaser: "teaser",
   hero: "hero",
   use_cases: "use-cases",
   how_it_works: "how-it-works",
@@ -33,8 +39,8 @@ function firstBlock(value: any): StoryblokBlock | undefined {
 }
 
 function normalizeUrl(value: any): any {
-  if (!value || typeof value !== "object") return value;
-  return value.url || value.cached_url || value.story?.url || "#";
+  if (!value || typeof value !== "object") return value || "";
+  return value.url || value.cached_url || value.story?.url || "";
 }
 
 function normalizeCta(value: any) {
@@ -92,15 +98,52 @@ function normalizeFooter(value: any): StoryblokBlock | undefined {
 }
 
 function normalizeSection(block: StoryblokBlock, sectionId: string) {
-  const normalized: StoryblokBlock = { ...block, section_id: sectionId };
+  const configuredId = typeof block.section_id === "string"
+    ? block.section_id.trim().replace(/^#/, "").replace(/[^a-zA-Z0-9_-]/g, "-")
+    : "";
+  const normalized: StoryblokBlock = {
+    ...block,
+    section_id: configuredId || sectionId,
+  };
 
   switch (block.component) {
+    case "grid":
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "default";
+      normalized.columns = (Array.isArray(block.columns) ? block.columns : []).map(
+        (column: StoryblokBlock) => ({
+          ...column,
+          title: column.title ?? column.heading ?? column.name,
+          description: column.description ?? column.body,
+          label: column.label ?? column.category ?? column.topic,
+          info: column.info ?? [column.author ?? column.writer_name, column.date ?? column.published_at, column.read_time ?? column.reading_time].filter(Boolean).join("  ·  "),
+          link_url: normalizeUrl(column.link_url ?? column.url),
+        }),
+      );
+      break;
+    case "feature":
+      normalized.title = block.title ?? block.heading ?? block.name;
+      normalized.description = block.description ?? block.body;
+      normalized.label = block.label ?? block.category ?? block.topic;
+      normalized.info = block.info ?? [block.author ?? block.writer_name, block.date ?? block.published_at, block.read_time ?? block.reading_time].filter(Boolean).join("  ·  ");
+      normalized.link_url = normalizeUrl(block.link_url ?? block.url);
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "standard";
+      break;
+    case "teaser":
+      normalized.heading = block.heading ?? block.headline;
+      normalized.cta_url = normalizeUrl(block.cta_url ?? block.cta?.url);
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "wide";
+      break;
     case "hero":
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "split";
       normalized.description = block.description ?? block.subtext;
       normalized.video = block.video ?? block.video_url;
       normalized.live_label = block.live_label ?? block.video_label;
       normalized.primary_cta = normalizeCta(block.primary_cta);
       normalized.secondary_cta = normalizeCta(block.secondary_cta);
+      break;
+    case "use_cases":
+    case "how_it_works":
+      normalized.layout_variant = block.layout_variant ?? block.layout ?? "default";
       break;
     case "preview":
     case "faq":
@@ -116,6 +159,8 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
     const cta = normalizeCta(block.cta);
     normalized.cta_label = block.cta_label ?? cta?.label;
     normalized.cta_url = block.cta_url ?? cta?.url;
+    normalized.cta_icon = block.cta_icon ?? cta?.icon;
+    normalized.cta_style = block.cta_style ?? cta?.style ?? cta?.variant;
     normalized.cta_url = normalizeUrl(normalized.cta_url);
   }
 
@@ -124,6 +169,8 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
     const cta = normalizeCta(block.cta);
     normalized.cta_label = block.cta_label ?? cta?.label;
     normalized.cta_url = block.cta_url ?? cta?.url;
+    normalized.cta_icon = block.cta_icon ?? cta?.icon;
+    normalized.cta_style = block.cta_style ?? cta?.style ?? cta?.variant;
     normalized.cta_url = normalizeUrl(normalized.cta_url);
   }
 
@@ -173,6 +220,7 @@ export function normalizeStoryblokPage(content: any) {
   const headerSource = firstBlock(page.header) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "header");
   const footerSource = firstBlock(page.footer) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "footer");
   const counts = new Map<string, number>();
+  const usedSectionIds = new Map<string, number>();
   const sections = sourceBlocks
     .filter((block: StoryblokBlock) =>
       sectionComponents.has(block.component) && block.visible !== false,
@@ -181,7 +229,16 @@ export function normalizeStoryblokPage(content: any) {
       const base = sectionIds[block.component];
       const occurrence = (counts.get(base) ?? 0) + 1;
       counts.set(base, occurrence);
-      return normalizeSection(block, occurrence === 1 ? base : `${base}-${occurrence}`);
+      const normalized = normalizeSection(
+        block,
+        occurrence === 1 ? base : `${base}-${occurrence}`,
+      );
+      const requestedId = normalized.section_id;
+      const duplicateCount = usedSectionIds.get(requestedId) ?? 0;
+      usedSectionIds.set(requestedId, duplicateCount + 1);
+      return duplicateCount === 0
+        ? normalized
+        : { ...normalized, section_id: `${requestedId}-${duplicateCount + 1}` };
     });
 
   const header = connectRepeatedNavItems(normalizeHeader(headerSource), sections);
@@ -194,6 +251,9 @@ export function normalizeStoryblokPage(content: any) {
 }
 
 const renderers: Record<string, ComponentType<{ blok?: any }>> = {
+  grid: Grid,
+  feature: ({ blok }) => <Feature blok={blok} standalone />,
+  teaser: Teaser,
   hero: HeroSection,
   use_cases: UseCasesSection,
   how_it_works: HowItWorksSection,

@@ -105,15 +105,15 @@ export default function Footer({ blok }: FooterProps) {
 
   const socialLinks = blok?.social_links ?? defaultSocialLinks;
 
-  const brandName = blok?.brand_name || "ConverSim";
+  const brandName = blok ? blok.brand_name?.trim() || "" : "ConverSim";
 
-  const description =
-    blok?.description ||
-    "Revolutionizing professional training through hyper-realistic AI avatar simulations.";
+  const description = blok
+    ? blok.description?.trim() || ""
+    : "Revolutionizing professional training through hyper-realistic AI avatar simulations.";
 
-  const copyright =
-    blok?.copyright_text ||
-    "© {year} Conversim. All rights reserved.";
+  const copyright = blok
+    ? blok.copyright_text?.trim() || ""
+    : "© {year} Conversim. All rights reserved.";
 
   function handleLinkClick(
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -159,7 +159,7 @@ export default function Footer({ blok }: FooterProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
 
           {/* Brand */}
-          <div className="col-span-2">
+          {(blok?.logo?.filename || brandName || description) && <div className="col-span-2">
             <Link
               className="flex items-center gap-2.5 mb-5"
               to="/"
@@ -173,15 +173,15 @@ export default function Footer({ blok }: FooterProps) {
                 />
               ) : null}
 
-              <span className="font-semibold text-lg text-slate-900 tracking-tight">
+              {brandName && <span className="font-semibold text-lg text-slate-900 tracking-tight">
                 {renderBrandName()}
-              </span>
+              </span>}
             </Link>
 
-            <p className="text-slate-600 text-sm max-w-sm leading-relaxed">
+            {description && <p className="text-slate-600 text-sm max-w-sm leading-relaxed">
               {description}
-            </p>
-          </div>
+            </p>}
+          </div>}
 
           {/* Footer Columns */}
           {columns.map((column, columnIndex) => (
@@ -194,12 +194,12 @@ export default function Footer({ blok }: FooterProps) {
                 ? storyblokEditable(column as any)
                 : {})}
             >
-              <h4 className="text-sm font-semibold text-slate-900 mb-5">
+              {column.heading && <h4 className="text-sm font-semibold text-slate-900 mb-5">
                 {column.heading}
-              </h4>
+              </h4>}
 
               <ul className="space-y-3 text-sm">
-                {(column.links || []).map((link, linkIndex) => {
+                {(column.links || []).filter((link) => link.label && link.url).map((link, linkIndex) => {
                   const url = link.url || "#";
                   const isAnchor = url.startsWith("#");
 
@@ -242,10 +242,10 @@ export default function Footer({ blok }: FooterProps) {
 
         {/* Bottom */}
         <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>{renderCopyright()}</p>
+          {copyright && <p>{renderCopyright()}</p>}
 
           <div className="flex gap-6">
-            {socialLinks.map((social, index) => (
+            {socialLinks.filter((social) => social.label && social.url).map((social, index) => (
               <a
                 key={
                   social._uid ||

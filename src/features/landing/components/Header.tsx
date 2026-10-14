@@ -63,7 +63,7 @@ export default function Header({ blok }: HeaderProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navigationItems = blok
+  const navigationItems = (blok
     ? blok.navigation_items ?? []
     : [
         {
@@ -86,16 +86,24 @@ export default function Header({ blok }: HeaderProps) {
           label: "Pricing",
           target_anchor: "#pricing",
         },
-      ];
+      ]).filter((item) => item.label?.trim() && item.target_anchor?.trim());
 
   const showAuthActions =
     blok?.show_authentication_actions ?? true;
 
-  const loginLabel = blok?.log_in_label || "Log In";
-  const loginUrl = toAppUrl(blok?.log_in_url || "/login");
+  const loginLabel = blok ? blok.log_in_label?.trim() : "Log In";
+  const loginUrl = blok?.log_in_url?.trim()
+    ? toAppUrl(blok.log_in_url)
+    : !blok
+      ? toAppUrl("/login")
+      : "";
 
-  const signupLabel = blok?.sign_up_label || "Sign up";
-  const signupUrl = toAppUrl(blok?.sign_up_url || "/signup");
+  const signupLabel = blok ? blok.sign_up_label?.trim() : "Sign up";
+  const signupUrl = blok?.sign_up_url?.trim()
+    ? toAppUrl(blok.sign_up_url)
+    : !blok
+      ? toAppUrl("/signup")
+      : "";
 
   function handleNavigation(
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -216,19 +224,19 @@ export default function Header({ blok }: HeaderProps) {
         >
           {showAuthActions && (
               <>
-                <a
+                {loginLabel && loginUrl && <a
                   href={loginUrl}
                   className="text-slate-600 hover:text-slate-900 px-4 py-2 text-sm font-medium transition-colors"
                 >
                   {loginLabel}
-                </a>
+                </a>}
 
-                <a
+                {signupLabel && signupUrl && <a
                   href={signupUrl}
                   className="bg-brand hover:bg-brand-hover text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-[0_2px_12px_rgba(37,99,235,0.25)]"
                 >
                   {signupLabel}
-                </a>
+                </a>}
               </>
             )}
         </motion.div>

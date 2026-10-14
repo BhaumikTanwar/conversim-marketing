@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { scoreColor } from "../../../lib/scoreColor";
-import { marketingHref } from "../../../lib/env";
+import StoryblokCta, { type StoryblokCtaValue } from "./StoryblokCta";
 
 interface HeroStat {
   label?: string;
@@ -19,11 +19,7 @@ interface HeroAsset {
   url?: string;
 }
 
-interface HeroLink {
-  url?: string;
-  label?: string;
-  linktype?: string;
-}
+interface HeroLink extends StoryblokCtaValue { linktype?: string; }
 
 interface HeroBlok {
   _uid?: string;
@@ -35,6 +31,8 @@ interface HeroBlok {
   highlighted_heading?: string;
   italic_heading?: string;
   description?: string;
+  layout_variant?: string;
+  layout?: string;
 
   primary_cta?: HeroLink | string;
   secondary_cta?: HeroLink | string;
@@ -44,6 +42,7 @@ interface HeroBlok {
   criteria?: HeroCriterion[];
 
   video?: HeroAsset | string;
+  video_poster?: HeroAsset | string;
 
   live_label?: string;
   feedback_label?: string;
@@ -56,19 +55,20 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ blok }: HeroSectionProps) {
-  const eyebrow = blok?.eyebrow || "AI conversation training";
-
-  const heading = blok?.heading || "Practice Real";
-
-  const highlightedHeading =
-    blok?.highlighted_heading || "Conversations.";
+  const layout = (blok?.layout_variant || blok?.layout || "split").toLowerCase().replace(/[\s-]+/g, "_");
+  const centered = layout === "centered" || layout === "center";
+  const mediaLeft = layout === "media_left" || layout === "left_media" || layout === "image_left";
+  const mediaRight = layout === "media_right" || layout === "right_media" || layout === "image_right";
+  const eyebrow = blok ? blok.eyebrow?.trim() : "AI conversation training";
+  const heading = blok ? blok.heading?.trim() : "Practice Real";
+  const highlightedHeading = blok ? blok.highlighted_heading?.trim() : "Conversations.";
 
   const italicHeading =
-    blok?.italic_heading || "Get better, fast.";
+    blok ? blok.italic_heading?.trim() : "Get better, fast.";
 
-  const description =
-    blok?.description ||
-    "Practice the conversations that matter — with AI that responds like a real person and scores you as you go.";
+  const description = blok
+    ? blok.description?.trim()
+    : "Practice the conversations that matter — with AI that responds like a real person and scores you as you go.";
 
   const primaryCta = typeof blok?.primary_cta === "object"
     ? blok.primary_cta
@@ -89,43 +89,45 @@ export default function HeroSection({ blok }: HeroSectionProps) {
       !blok,
   );
 
+  const hasScore = blok ? blok.score !== undefined && blok.score !== "" : true;
   const score = Number(blok?.score ?? 78);
 
-  const stats: HeroStat[] = blok?.stats?.length
-    ? blok.stats
+  const stats: HeroStat[] = blok
+    ? (blok.stats ?? []).filter((stat) => stat.value || stat.label)
     : [
         { value: "10k+", label: "Sessions run" },
         { value: "94%", label: "Report improvement" },
         { value: "50+", label: "Scenarios" },
       ];
 
-  const criteria: HeroCriterion[] = blok?.criteria?.length
-    ? blok.criteria
+  const criteria: HeroCriterion[] = blok
+    ? (blok.criteria ?? []).filter((criterion) => criterion.label || criterion.score !== undefined)
     : [
         { label: "Empathy", score: 86 },
         { label: "Objection handling", score: 72 },
         { label: "Pacing", score: 58 },
       ];
 
-  const videoSrc =
-    typeof blok?.video === "string"
-      ? blok.video
-      : blok?.video?.filename ||
-        blok?.video?.url ||
-        "/landing/conversimdemo2.webm";
+  const videoSrc = typeof blok?.video === "string"
+    ? blok.video
+    : blok?.video?.filename || blok?.video?.url || (!blok ? "/landing/conversimdemo2.webm" : "");
+  const videoPoster = typeof blok?.video_poster === "string"
+    ? blok.video_poster
+    : blok?.video_poster?.filename || blok?.video_poster?.url;
 
-  const liveLabel = blok?.live_label || "Live session";
+  const showVideo = Boolean(videoSrc);
+  const showStats = stats.length > 0;
+  const compactTextHero = !showVideo && centered;
 
-  const feedbackLabel =
-    blok?.feedback_label || "Good empathy shown";
-
-  const scoreLabel = blok?.score_label || "Live score";
+  const liveLabel = blok ? blok.live_label?.trim() : "Live session";
+  const feedbackLabel = blok ? blok.feedback_label?.trim() : "Good empathy shown";
+  const scoreLabel = blok ? blok.score_label?.trim() : "Live score";
 
   return (
     <section
       {...(blok ? storyblokEditable(blok) : {})}
       id={blok?.section_id}
-      className="relative flex items-center min-h-[100dvh] py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden aurora-bg"
+      className={`relative flex items-center ${showVideo ? "min-h-[calc(100dvh-5rem)] py-14 md:py-20" : compactTextHero ? "py-10 md:py-14" : "py-14 md:py-18"} px-4 sm:px-6 lg:px-8 overflow-hidden aurora-bg`}
     >
       <div
         className="pointer-events-none absolute inset-0 hero-dot-grid"
@@ -137,9 +139,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
         aria-hidden
       />
 
-      <div className="max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-12 lg:gap-20 items-center w-full relative z-10">
-        <div className="flex flex-col gap-7 md:gap-9">
-          <motion.div
+      <div className={`max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid ${!showVideo || centered ? "lg:grid-cols-1" : mediaRight ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"} gap-12 lg:gap-20 items-center w-full relative z-10`}>
+        <div className={`flex flex-col ${compactTextHero ? "gap-4 md:gap-5" : "gap-7 md:gap-9"} ${(!showVideo || centered) ? "items-center text-center" : ""} ${mediaLeft ? "lg:order-2" : "lg:order-1"}`}>
+          {eyebrow && <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -155,9 +157,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             />
 
             {eyebrow}
-          </motion.div>
+          </motion.div>}
 
-          <motion.h1
+          {(heading || highlightedHeading || italicHeading) && <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -165,23 +167,23 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.08,
               ease: EASE,
             }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-semibold text-slate-900 leading-[1.02]"
+            className={`${compactTextHero ? "text-3xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-5xl lg:text-6xl"} font-semibold text-slate-900 leading-[1.04] tracking-tight`}
           >
             {heading}
-            <br />
+            {heading && highlightedHeading && <br />}
+            {highlightedHeading && <span className="text-brand">{highlightedHeading}</span>}
 
-            <span className="text-brand">
-              {highlightedHeading}
-            </span>
+            {italicHeading && (
+              <>
+                {(heading || highlightedHeading) && <br />}
+                <span className="font-normal italic text-slate-500">
+                  {italicHeading}
+                </span>
+              </>
+            )}
+          </motion.h1>}
 
-            <br />
-
-            <span className="font-normal italic text-slate-500">
-              {italicHeading}
-            </span>
-          </motion.h1>
-
-          <motion.p
+          {description && <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -189,12 +191,12 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.16,
               ease: EASE,
             }}
-            className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-[44ch]"
+            className={`${compactTextHero ? "text-sm md:text-base" : "text-base md:text-lg"} text-slate-600 leading-relaxed max-w-[52ch]`}
           >
             {description}
-          </motion.p>
+          </motion.p>}
 
-          <motion.div
+          {(hasPrimaryCta || hasSecondaryCta || showStats) && <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -202,35 +204,34 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.24,
               ease: EASE,
             }}
-            className="flex flex-col gap-7"
+            className={`flex flex-col ${compactTextHero ? "gap-5" : "gap-7"} ${!showVideo || centered ? "items-center" : ""}`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
               {hasPrimaryCta && (
-                <a
-                  href={marketingHref(primaryCta.url || "/login")}
-                  className="bg-brand hover:bg-brand-hover text-white px-7 py-4 rounded-xl font-medium text-base transition-[background-color,transform] active:scale-[0.97] flex items-center justify-center gap-2.5 group shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_6px_24px_rgba(37,99,235,0.32)] ring-1 ring-brand-hover/30"
-                >
-                  {primaryCta.label || "Get started"}
-                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
-                    arrow_forward
-                  </span>
-                </a>
+                <StoryblokCta
+                  value={{
+                    ...primaryCta,
+                    label: primaryCta.label || (!blok ? "Get started" : ""),
+                    url: primaryCta.url || (!blok ? "/login" : ""),
+                  }}
+                  className="px-7 py-4 text-base"
+                />
               )}
 
               {hasSecondaryCta && (
-                <a
-                  href={secondaryCta.url || "#preview"}
-                  className="inline-flex items-center justify-center gap-2 text-base font-medium text-slate-600 hover:text-brand transition-colors"
-                >
-                  <span className="material-symbols-outlined text-xl text-brand">
-                    play_circle
-                  </span>
-                  {secondaryCta.label || "Watch demo"}
-                </a>
+                <StoryblokCta
+                  value={{
+                    ...secondaryCta,
+                    label: secondaryCta.label || (!blok ? "Watch demo" : ""),
+                    url: secondaryCta.url || (!blok ? "#preview" : ""),
+                    style: secondaryCta.style || secondaryCta.variant || "secondary",
+                  }}
+                  className="px-7 py-4 text-base"
+                />
               )}
             </div>
 
-            <motion.div
+            {showStats && <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{
@@ -243,9 +244,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               {stats.map((s, index) => (
                 <div
                   key={`${s.label}-${index}`}
-                  className="flex flex-col gap-0.5 px-7 first:pl-0 last:pr-0"
+                  className="flex flex-col gap-0.5 px-4 sm:px-6 first:pl-0 last:pr-0"
                 >
-                  <span className="text-2xl font-semibold text-slate-900 tabular">
+                  <span className="text-xl md:text-2xl font-semibold text-slate-900 tabular">
                     {s.value}
                   </span>
 
@@ -254,11 +255,11 @@ export default function HeroSection({ blok }: HeroSectionProps) {
                   </span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </motion.div>}
+          </motion.div>}
         </div>
 
-        <motion.div
+        {showVideo && <motion.div
           initial={{
             opacity: 0,
             y: 32,
@@ -274,7 +275,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             delay: 0.2,
             ease: EASE,
           }}
-          className="hidden lg:block relative w-full aspect-[4/5] max-w-md xl:max-w-lg lg:ml-auto lg:mt-10"
+          className={`relative w-full aspect-[4/5] max-w-md xl:max-w-lg ${centered ? "lg:mx-auto lg:mt-0" : "hidden lg:block lg:ml-auto lg:mt-10"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}
         >
           <div className="w-full h-full bg-slate-900 rounded-[1.75rem] overflow-hidden shadow-[0_30px_60px_-20px_rgba(29,28,24,0.35)] ring-1 ring-slate-900/10">
             <video
@@ -285,16 +286,17 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               loop
               playsInline
               src={videoSrc}
+              poster={videoPoster || undefined}
             />
           </div>
 
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+          {liveLabel && <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />
 
             {liveLabel}
-          </div>
+          </div>}
 
-          <motion.div
+          {feedbackLabel && <motion.div
             initial={{
               opacity: 0,
               x: 16,
@@ -315,9 +317,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             </span>
 
             {feedbackLabel}
-          </motion.div>
+          </motion.div>}
 
-          <motion.div
+          {(hasScore || criteria.length > 0) && <motion.div
             initial={{
               opacity: 0,
               y: 16,
@@ -334,18 +336,18 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             className="absolute -left-10 bottom-10 w-60 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl backdrop-blur-md"
           >
             <div className="mb-3 flex items-end justify-between">
-              <span className="text-xs font-medium text-slate-500">
+              {scoreLabel && <span className="text-xs font-medium text-slate-500">
                 {scoreLabel}
-              </span>
+              </span>}
 
-              <span
+              {hasScore && <span
                 className="font-mono text-3xl font-semibold leading-none"
                 style={{
                   color: scoreColor(score),
                 }}
               >
                 {score}
-              </span>
+              </span>}
             </div>
 
             <ul className="space-y-2.5">
@@ -384,8 +386,8 @@ export default function HeroSection({ blok }: HeroSectionProps) {
                 );
               })}
             </ul>
-          </motion.div>
-        </motion.div>
+          </motion.div>}
+        </motion.div>}
       </div>
     </section>
   );

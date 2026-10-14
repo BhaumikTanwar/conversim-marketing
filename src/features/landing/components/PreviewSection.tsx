@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import LazyVideo from "../../../shared/components/LazyVideo";
+import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
 
 interface PreviewFeedbackItem {
   _uid?: string;
@@ -18,10 +19,11 @@ interface PreviewBlok {
   _editable?: string;
   component?: string;
 
-  layout_variant?: "default" | string;
+  layout_variant?: "default" | "centered" | "wide" | "compact" | string;
 
   heading?: string;
   video_url?: string;
+  poster_image?: { filename?: string; url?: string } | string;
   browser_url?: string;
   status_label?: string;
   recording_label?: string;
@@ -53,28 +55,34 @@ const defaultFeedbackItems: PreviewFeedbackItem[] = [
 ];
 
 export default function PreviewSection({ blok }: PreviewSectionProps) {
-  const heading =
-    blok?.heading || "See what a session looks like from the inside.";
+  const layout = (blok?.layout_variant || "default").toLowerCase().replace(/[\s-]+/g, "_");
+  const compact = layout === "compact";
+  const centered = layout === "centered" || layout === "center";
+  const heading = blok ? blok.heading?.trim() : "See what a session looks like from the inside.";
 
-  const videoSrc = blok?.video_url || "/landing/conversimdemo1.webm";
+  const videoSrc = blok ? blok.video_url?.trim() : "/landing/conversimdemo1.webm";
+  if (!videoSrc) return null;
+  const posterImage = typeof blok?.poster_image === "string"
+    ? blok.poster_image
+    : blok?.poster_image?.filename || blok?.poster_image?.url;
 
-  const browserUrl = blok?.browser_url || "conversim.co";
+  const browserUrl = blok ? blok.browser_url?.trim() : "conversim.co";
 
-  const statusLabel = blok?.status_label || "Listening";
+  const statusLabel = blok ? blok.status_label?.trim() : "Listening";
 
-  const recordingLabel = blok?.recording_label || "Recording";
+  const recordingLabel = blok ? blok.recording_label?.trim() : "Recording";
 
-  const feedbackHeading = blok?.feedback_heading || "Live Feedback";
+  const feedbackHeading = blok ? blok.feedback_heading?.trim() : "Live Feedback";
 
-  const feedbackItems =
-    blok?.feedback_items && blok.feedback_items.length > 0
-      ? blok.feedback_items
-      : defaultFeedbackItems;
+  const feedbackItems = blok
+    ? (blok.feedback_items ?? []).filter((item) => item.text || item.icon)
+    : defaultFeedbackItems;
 
-  const goalsHeading = blok?.goals_heading || "Scenario Goals";
+  const goalsHeading = blok ? blok.goals_heading?.trim() : "Scenario Goals";
 
-  const progressLabel = blok?.progress_label || "Progress";
+  const progressLabel = blok ? blok.progress_label?.trim() : "Progress";
 
+  const hasProgress = blok ? blok.progress_value !== undefined && blok.progress_value !== "" : true;
   const progressValue = Number(blok?.progress_value ?? 66);
 
   const progressWidth = `${Math.min(Math.max(progressValue, 0), 100)}%`;
@@ -82,23 +90,23 @@ export default function PreviewSection({ blok }: PreviewSectionProps) {
   return (
     <section
       {...(blok ? storyblokEditable(blok as any) : {})}
-      className="py-20 md:py-28 lg:py-36 px-4 sm:px-6 lg:px-8"
+      className={`${sectionSpacing(layout)} px-4 sm:px-6 lg:px-8`}
       id={blok?.section_id || "preview"}
     >
-      <div className="max-w-[1280px] 2xl:max-w-[1440px] 3xl:max-w-[1760px] mx-auto">
-        <motion.div
+      <div className={`${sectionContainer(layout)} mx-auto`}>
+        {heading && <motion.div
           initial={{ opacity: 0, y: 22 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="mb-14 md:mb-20 flex flex-col md:flex-row justify-between items-end gap-6"
+          className={`${compact ? "mb-7" : "mb-10 md:mb-12"} flex flex-col md:flex-row justify-between items-end gap-6 ${centered ? "items-center text-center" : ""}`}
         >
           <div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 leading-[1.05] max-w-2xl">
+            <h2 className={`${sectionHeadingClass} text-slate-900 max-w-2xl`}>
               {heading}
             </h2>
           </div>
-        </motion.div>
+        </motion.div>}
 
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
@@ -114,41 +122,42 @@ export default function PreviewSection({ blok }: PreviewSectionProps) {
               <div className="w-3 h-3 rounded-full bg-slate-300" />
             </div>
 
-            <div className="font-mono text-xs text-slate-600 border border-slate-200 bg-white px-4 py-1 rounded-lg shadow-2xs">
+            {browserUrl && <div className="font-mono text-xs text-slate-600 border border-slate-200 bg-white px-4 py-1 rounded-lg shadow-2xs">
               {browserUrl}
-            </div>
+            </div>}
 
             <div className="w-16" />
           </div>
 
           <div className="p-4 sm:p-6 md:p-8 grid md:grid-cols-3 gap-5 bg-slate-50">
-            <div className="md:col-span-2 aspect-video bg-white border border-slate-200/90 rounded-xl relative overflow-hidden flex flex-col shadow-xs">
+            <div className={`${feedbackHeading || feedbackItems.length || goalsHeading || hasProgress ? "md:col-span-2" : "md:col-span-3"} aspect-video bg-white border border-slate-200/90 rounded-xl relative overflow-hidden flex flex-col shadow-xs`}>
               <div className="flex-grow bg-slate-900 overflow-hidden rounded-t-xl flex items-center justify-center">
                 <LazyVideo
                   className="w-full h-full object-contain"
                   src={videoSrc}
+                  poster={posterImage || undefined}
                 />
               </div>
 
-              <div className="border-t border-slate-200 bg-white px-4 py-3 flex justify-between items-center">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-lg">
+              {(statusLabel || recordingLabel) && <div className="border-t border-slate-200 bg-white px-4 py-3 flex justify-between items-center">
+                {statusLabel && <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-lg">
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
                   <span className="text-xs font-semibold text-indigo-700">
                     {statusLabel}
                   </span>
-                </div>
+                </div>}
 
-                <span className="text-xs text-rose-600 font-medium">
+                {recordingLabel && <span className="text-xs text-rose-600 font-medium">
                   ● {recordingLabel}
-                </span>
-              </div>
+                </span>}
+              </div>}
             </div>
 
-            <div className="flex flex-col gap-4">
-              <div className="bg-white border border-slate-200/90 rounded-xl p-5 flex-1 shadow-xs">
-                <h4 className="text-sm font-semibold text-slate-900 mb-4 pb-3 border-b border-slate-100">
+            {(feedbackHeading || feedbackItems.length > 0 || goalsHeading || hasProgress) && <div className="flex flex-col gap-4">
+              {(feedbackHeading || feedbackItems.length > 0) && <div className="bg-white border border-slate-200/90 rounded-xl p-5 flex-1 shadow-xs">
+                {feedbackHeading && <h4 className="text-sm font-semibold text-slate-900 mb-4 pb-3 border-b border-slate-100">
                   {feedbackHeading}
-                </h4>
+                </h4>}
 
                 <ul className="space-y-3">
                   {feedbackItems.map((item, index) => {
@@ -178,18 +187,18 @@ export default function PreviewSection({ blok }: PreviewSectionProps) {
                     );
                   })}
                 </ul>
-              </div>
+              </div>}
 
-              <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs">
-                <h4 className="text-sm font-semibold text-slate-900 mb-4 pb-3 border-b border-slate-100">
+              {(goalsHeading || hasProgress) && <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs">
+                {goalsHeading && <h4 className="text-sm font-semibold text-slate-900 mb-4 pb-3 border-b border-slate-100">
                   {goalsHeading}
-                </h4>
+                </h4>}
 
-                <div>
+                {hasProgress && <div>
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs text-slate-500">
+                    {progressLabel && <span className="text-xs text-slate-500">
                       {progressLabel}
-                    </span>
+                    </span>}
 
                     <span className="font-mono text-xs font-semibold text-indigo-600">
                       {progressValue}%
@@ -209,9 +218,9 @@ export default function PreviewSection({ blok }: PreviewSectionProps) {
                       className="h-full bg-indigo-600 rounded-full"
                     />
                   </div>
-                </div>
-              </div>
-            </div>
+                </div>}
+              </div>}
+            </div>}
           </div>
         </motion.div>
       </div>

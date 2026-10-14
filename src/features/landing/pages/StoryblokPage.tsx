@@ -1,6 +1,6 @@
 /* Storyblok blocks have different schemas, matching the existing landing renderer. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useStoryblokApi } from "@storyblok/react";
+import { useStoryblokApi, useStoryblokState } from "@storyblok/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
@@ -25,12 +25,13 @@ export default function StoryblokPage() {
     notFound: boolean;
     fetchError: string | null;
   }>({ slug: "", story: null, notFound: false, fetchError: null });
-  const seoContent = result.story?.content;
+  const story = useStoryblokState<any>(result.story);
+  const seoContent = story?.content;
   usePageMeta(pathname, seoContent ? {
-    title: seoContent.seo_title || result.story.name,
+    title: seoContent.seo_title || story.name,
     description: seoContent.seo_description || "",
     image: seoContent.og_image?.filename || seoContent.og_image?.url,
-    noIndex: Boolean(seoContent.no_index),
+    noIndex: Boolean(seoContent.no_index ?? seoContent.noindex),
   } : undefined);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function StoryblokPage() {
   }, [slug, storyblokApi, isDevelopmentPreview]);
 
   useEffect(() => {
-    if (!result.story || !hash) return;
+    if (!story || !hash) return;
     const timer = window.setTimeout(() => {
       document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({
         behavior: "smooth",
@@ -75,7 +76,7 @@ export default function StoryblokPage() {
       });
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [result.story, hash]);
+  }, [story, hash]);
 
   if (result.slug !== slug) {
     return (
@@ -85,7 +86,6 @@ export default function StoryblokPage() {
     );
   }
 
-  const story = result.story;
   if (result.fetchError) {
     return (
       <main className="min-h-dvh flex flex-col items-center justify-center gap-3 bg-bg px-6 text-center">
@@ -107,7 +107,7 @@ export default function StoryblokPage() {
   return (
     <>
       <StoryblokHeader blok={page.header} />
-      <main className="overflow-x-clip">
+      <main className="overflow-x-clip pt-16 md:pt-20">
         <StoryblokSections sections={page.sections} />
       </main>
       <StoryblokFooter blok={page.footer} />
