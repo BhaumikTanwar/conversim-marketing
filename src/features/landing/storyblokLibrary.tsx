@@ -61,6 +61,14 @@ function normalizeHeader(value: any): StoryblokBlock | undefined {
     navigation_items: (Array.isArray(navigationItems) ? navigationItems : []).map((item: StoryblokBlock) => ({
       ...item,
       target_anchor: normalizeUrl(item.target_anchor ?? item.target),
+      open_in_new_tab: item.open_in_new_tab ?? item.open_new_tab,
+      dropdown_items: (Array.isArray(item.dropdown_items) ? item.dropdown_items : []).map(
+        (child: StoryblokBlock) => ({
+          ...child,
+          target_anchor: normalizeUrl(child.target_anchor ?? child.target),
+          open_in_new_tab: child.open_in_new_tab ?? child.open_new_tab,
+        }),
+      ),
     })),
     header_style: block.header_style ?? block.style,
     show_authentication_actions:

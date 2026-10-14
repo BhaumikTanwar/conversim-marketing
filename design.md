@@ -419,10 +419,13 @@ Use Featured sparingly so the page retains a clear hierarchy.
 **Technical component:** `nav_item`
 
 - Label.
-- Destination: page path, section anchor, or full URL.
+- Optional destination: page path, section anchor, or full URL.
 - Optional open-in-new-tab setting.
+- Optional reorderable Dropdown links. Adding at least one complete Dropdown link automatically turns the navigation item into a dropdown; no separate type or toggle is needed.
 
-Incomplete links are hidden.
+A Dropdown link contains a label, optional supporting description, destination, and optional open-in-new-tab setting. Incomplete dropdown links are hidden. On desktop, the menu opens on hover, keyboard focus, or click. On mobile, it opens as an accordion.
+
+An item without Dropdown links behaves as a standard navigation link and is hidden when its destination is missing.
 
 ### 6.10 Footer link group, Footer link, and Social link
 

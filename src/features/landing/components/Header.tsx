@@ -1,44 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { storyblokEditable } from "@storyblok/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { motion } from "framer-motion";
-import { storyblokEditable } from "@storyblok/react";
+
 import { EASE } from "../../../lib/animations";
-import { scrollToSection } from "../../../lib/utils";
 import { toAppUrl } from "../../../lib/env";
+import { scrollToSection } from "../../../lib/utils";
 import { Logo } from "../../../shared/components/Logo";
 
-interface NavigationItem {
+interface DropdownItem {
   _uid?: string;
   _editable?: string;
   component?: string;
   label?: string;
+  description?: string;
   target_anchor?: string;
   open_in_new_tab?: boolean;
+}
+
+interface NavigationItem extends DropdownItem {
+  dropdown_items?: DropdownItem[];
 }
 
 interface HeaderBlok {
   _uid?: string;
   _editable?: string;
   component?: string;
-
-  logo?: {
-    filename?: string;
-    alt?: string;
-  };
-
+  logo?: { filename?: string; alt?: string };
   logo_alt_text?: string;
-
   navigation_items?: NavigationItem[];
-
   header_style?: string;
   style?: string;
-
   show_authentication_actions?: boolean;
-
   log_in_label?: string;
   log_in_url?: string;
-
   sign_up_label?: string;
   sign_up_url?: string;
 }
@@ -47,57 +44,58 @@ interface HeaderProps {
   blok?: HeaderBlok;
 }
 
+function dropdownItemsFor(item: NavigationItem) {
+  return (item.dropdown_items ?? []).filter(
+    (child) => child.label?.trim() && child.target_anchor?.trim(),
+  );
+}
+
 export default function Header({ blok }: HeaderProps) {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileDropdown, setMobileDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 8);
     }
-
     onScroll();
-
     window.addEventListener("scroll", onScroll, { passive: true });
-
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
 
   const navigationItems = (blok
     ? blok.navigation_items ?? []
     : [
-        {
-          label: "Home",
-          target_anchor: "#",
-        },
-        {
-          label: "Use Cases",
-          target_anchor: "#use-cases",
-        },
-        {
-          label: "How It Works",
-          target_anchor: "#how-it-works",
-        },
-        {
-          label: "Preview",
-          target_anchor: "#preview",
-        },
-        {
-          label: "Pricing",
-          target_anchor: "#pricing",
-        },
-      ]).filter((item) => item.label?.trim() && item.target_anchor?.trim());
+        { label: "Home", target_anchor: "#" },
+        { label: "Use Cases", target_anchor: "#use-cases" },
+        { label: "How It Works", target_anchor: "#how-it-works" },
+        { label: "Preview", target_anchor: "#preview" },
+        { label: "Pricing", target_anchor: "#pricing" },
+      ]).filter(
+        (item) =>
+          item.label?.trim() &&
+          (item.target_anchor?.trim() || dropdownItemsFor(item).length > 0),
+      );
 
-  const showAuthActions =
-    blok?.show_authentication_actions ?? true;
-
+  const showAuthActions = blok?.show_authentication_actions ?? true;
   const loginLabel = blok ? blok.log_in_label?.trim() : "Log In";
   const loginUrl = blok?.log_in_url?.trim()
     ? toAppUrl(blok.log_in_url)
     : !blok
       ? toAppUrl("/login")
       : "";
-
   const signupLabel = blok ? blok.sign_up_label?.trim() : "Sign up";
   const signupUrl = blok?.sign_up_url?.trim()
     ? toAppUrl(blok.sign_up_url)
@@ -105,23 +103,20 @@ export default function Header({ blok }: HeaderProps) {
       ? toAppUrl("/signup")
       : "";
 
-  function handleNavigation(
-    event: React.MouseEvent<HTMLAnchorElement>,
-    target?: string,
-  ) {
+  function hrefFor(target?: string) {
+    if (!target) return "#";
+    return target.startsWith("#") && location.pathname === "/" ? `/${target}` : target;
+  }
+
+  function handleNavigation(event: React.MouseEvent<HTMLAnchorElement>, target?: string) {
     if (!target) return;
+    const anchor = target.startsWith("#") ? target.slice(1) : target;
 
-    const anchor = target.startsWith("#")
-      ? target.slice(1)
-      : target;
-
-    // Home
     if (!anchor) {
       scrollToSection("", event);
       return;
     }
 
-    // Section anchor
     if (target.startsWith("#")) {
       if (location.pathname === "/") {
         scrollToSection(anchor, event);
@@ -129,18 +124,36 @@ export default function Header({ blok }: HeaderProps) {
       }
 
       event.preventDefault();
-      const targetElement = anchor ? document.getElementById(anchor) : null;
-      if (!anchor) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else if (targetElement) {
+      const targetElement = document.getElementById(anchor);
+      if (targetElement) {
         const targetY = targetElement.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: targetY, behavior: "smooth" });
+        window.history.pushState(null, "", `${location.pathname}${target}`);
       } else {
         scrollToSection(anchor, event);
-        return;
       }
-      window.history.pushState(null, "", `${location.pathname}${target}`);
     }
+  }
+
+  function navigationLink(item: DropdownItem, className: string) {
+    const target = item.target_anchor || "#";
+    return (
+      <a
+        key={item._uid || `${item.label}-${target}`}
+        {...(item._uid ? storyblokEditable(item as any) : {})}
+        href={hrefFor(target)}
+        target={item.open_in_new_tab ? "_blank" : undefined}
+        rel={item.open_in_new_tab ? "noopener noreferrer" : undefined}
+        onClick={(event) => {
+          setOpenDropdown(null);
+          setMobileOpen(false);
+          if (!item.open_in_new_tab) handleNavigation(event, target);
+        }}
+        className={className}
+      >
+        {item.label}
+      </a>
+    );
   }
 
   const headerStyle = blok?.header_style ?? blok?.style ?? "solid";
@@ -154,17 +167,18 @@ export default function Header({ blok }: HeaderProps) {
       initial={{ opacity: 0, y: -14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.42, ease: EASE }}
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      onKeyDown={(event) => {
+        if (event.key === "Escape") setOpenDropdown(null);
+      }}
+      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         transparentAtTop
           ? "bg-transparent"
           : scrolled
-            ? "bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-[0_4px_20px_rgba(29,28,24,0.06)]"
-            : "bg-white/80 backdrop-blur-sm"
+            ? "border-b border-slate-200/80 bg-white/90 shadow-[0_4px_20px_rgba(29,28,24,0.06)] backdrop-blur-xl"
+            : "bg-white/85 backdrop-blur-lg"
       }`}
     >
-      <div className="max-w-[1280px] 2xl:max-w-[1440px] 3xl:max-w-[1760px] mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between">
-
-        {/* Logo */}
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 md:h-20 lg:px-8 2xl:max-w-[1440px] 3xl:max-w-[1760px]">
         {blok?.logo?.filename ? (
           <a href="/" aria-label={blok.logo_alt_text || blok.logo.alt || "Home"}>
             <img
@@ -177,70 +191,236 @@ export default function Header({ blok }: HeaderProps) {
           <Logo className="text-lg font-semibold" />
         )}
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {navigationItems.map((item, index) => {
-            const target = item.target_anchor || "#";
-            const isAnchor = target.startsWith("#");
+            const key = item._uid || `${item.label}-${index}`;
+            const dropdownItems = dropdownItemsFor(item);
 
+            if (dropdownItems.length === 0) {
+              return navigationLink(
+                item,
+                "rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40",
+              );
+            }
+
+            const isOpen = openDropdown === key;
             return (
-              <a
-                key={item._uid || `${item.label}-${index}`}
-                {...(item._uid
-                  ? storyblokEditable(item as any)
-                  : {})}
-                href={
-                  isAnchor && location.pathname === "/"
-                    ? `/${target}`
-                    : target
-                }
-                target={item.open_in_new_tab ? "_blank" : undefined}
-                rel={
-                  item.open_in_new_tab
-                    ? "noopener noreferrer"
-                    : undefined
-                }
-                onClick={(e) => {
-                  if (!item.open_in_new_tab) handleNavigation(e, target);
+              <div
+                key={key}
+                className="relative"
+                onMouseEnter={() => setOpenDropdown(key)}
+                onMouseLeave={() => setOpenDropdown(null)}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) setOpenDropdown(null);
                 }}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
-                {item.label}
-              </a>
+                <button
+                  type="button"
+                  {...(item._uid ? storyblokEditable(item as any) : {})}
+                  aria-expanded={isOpen}
+                  aria-haspopup="menu"
+                  onClick={() => setOpenDropdown(isOpen ? null : key)}
+                  onFocus={() => setOpenDropdown(key)}
+                  className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                >
+                  {item.label}
+                  <ChevronDown
+                    size={15}
+                    className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {isOpen && (
+                    <div
+                      className={`absolute left-1/2 top-full -translate-x-1/2 pt-3 ${
+                        dropdownItems.length === 1
+                          ? "w-[min(420px,calc(100vw-3rem))]"
+                          : "w-[min(680px,calc(100vw-3rem))]"
+                      }`}
+                    >
+                      <motion.div
+                        role="menu"
+                        initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.985 }}
+                        transition={{ duration: 0.18, ease: EASE }}
+                        className={`grid gap-2 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.18)] ${
+                          dropdownItems.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                        }`}
+                      >
+                        {dropdownItems.map((child) => {
+                          const target = child.target_anchor || "#";
+                          return (
+                            <a
+                              key={child._uid || `${child.label}-${target}`}
+                              {...(child._uid ? storyblokEditable(child as any) : {})}
+                              role="menuitem"
+                              href={hrefFor(target)}
+                              target={child.open_in_new_tab ? "_blank" : undefined}
+                              rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
+                              onClick={(event) => {
+                                setOpenDropdown(null);
+                                if (!child.open_in_new_tab) handleNavigation(event, target);
+                              }}
+                              className="group flex items-start justify-between gap-4 rounded-xl border border-transparent p-4 transition-all duration-200 hover:border-blue-100 hover:bg-blue-50/70 focus-visible:border-blue-200 focus-visible:bg-blue-50 focus-visible:outline-none"
+                            >
+                              <span>
+                                <span className="block text-sm font-semibold text-slate-950 transition-colors group-hover:text-brand">
+                                  {child.label}
+                                </span>
+                                {child.description?.trim() && (
+                                  <span className="mt-1.5 block text-sm leading-5 text-slate-500">
+                                    {child.description}
+                                  </span>
+                                )}
+                              </span>
+                              <ArrowUpRight
+                                size={16}
+                                className="mt-0.5 shrink-0 text-slate-400 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand"
+                                aria-hidden="true"
+                              />
+                            </a>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </nav>
 
-        {/* Authentication */}
         <motion.div
           initial={{ opacity: 0, x: 14 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{
-            duration: 0.38,
-            delay: 0.18,
-            ease: EASE,
-          }}
-          className="flex items-center gap-3"
+          transition={{ duration: 0.38, delay: 0.18, ease: EASE }}
+          className="flex items-center gap-2 sm:gap-3"
         >
           {showAuthActions && (
-              <>
-                {loginLabel && loginUrl && <a
+            <>
+              {loginLabel && loginUrl && (
+                <a
                   href={loginUrl}
-                  className="text-slate-600 hover:text-slate-900 px-4 py-2 text-sm font-medium transition-colors"
+                  className="hidden px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 lg:inline-flex"
                 >
                   {loginLabel}
-                </a>}
-
-                {signupLabel && signupUrl && <a
+                </a>
+              )}
+              {signupLabel && signupUrl && (
+                <a
                   href={signupUrl}
-                  className="bg-brand hover:bg-brand-hover text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-[0_2px_12px_rgba(37,99,235,0.25)]"
+                  className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white shadow-[0_2px_12px_rgba(37,99,235,0.25)] transition-colors hover:bg-brand-hover sm:px-5"
                 >
                   {signupLabel}
-                </a>}
-              </>
-            )}
+                </a>
+              )}
+            </>
+          )}
+          <button
+            type="button"
+            aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((open) => !open)}
+            className="inline-flex size-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 md:hidden"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.nav
+            aria-label="Mobile navigation"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: EASE }}
+            className="overflow-hidden border-t border-slate-200 bg-white md:hidden"
+          >
+            <div className="mx-auto max-w-[1280px] space-y-1 px-4 py-4 sm:px-6">
+              {navigationItems.map((item, index) => {
+                const key = item._uid || `${item.label}-${index}`;
+                const dropdownItems = dropdownItemsFor(item);
+                if (dropdownItems.length === 0) {
+                  return navigationLink(
+                    item,
+                    "block rounded-lg px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-950",
+                  );
+                }
+
+                const isOpen = mobileDropdown === key;
+                return (
+                  <div key={key}>
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      onClick={() => setMobileDropdown(isOpen ? null : key)}
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-base font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {item.label}
+                      <ChevronDown
+                        size={18}
+                        className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="space-y-1 pb-2 pl-3">
+                            {dropdownItems.map((child) => {
+                              const target = child.target_anchor || "#";
+                              return (
+                                <a
+                                  key={child._uid || `${child.label}-${target}`}
+                                  {...(child._uid ? storyblokEditable(child as any) : {})}
+                                  href={hrefFor(target)}
+                                  target={child.open_in_new_tab ? "_blank" : undefined}
+                                  rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
+                                  onClick={(event) => {
+                                    setMobileOpen(false);
+                                    if (!child.open_in_new_tab) handleNavigation(event, target);
+                                  }}
+                                  className="block rounded-lg px-3 py-3 hover:bg-blue-50"
+                                >
+                                  <span className="block text-sm font-semibold text-slate-900">
+                                    {child.label}
+                                  </span>
+                                  {child.description?.trim() && (
+                                    <span className="mt-1 block text-sm leading-5 text-slate-500">
+                                      {child.description}
+                                    </span>
+                                  )}
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+              {showAuthActions && loginLabel && loginUrl && (
+                <a
+                  href={loginUrl}
+                  className="block rounded-lg px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 lg:hidden"
+                >
+                  {loginLabel}
+                </a>
+              )}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
