@@ -20,8 +20,17 @@ interface DropdownItem {
   open_in_new_tab?: boolean;
 }
 
+interface DropdownGroup {
+  _uid?: string;
+  _editable?: string;
+  component?: string;
+  title?: string;
+  dropdown_items?: DropdownItem[];
+}
+
 interface NavigationItem extends DropdownItem {
   dropdown_items?: DropdownItem[];
+  dropdown_groups?: DropdownGroup[];
 }
 
 interface HeaderBlok {
@@ -44,10 +53,19 @@ interface HeaderProps {
   blok?: HeaderBlok;
 }
 
-function dropdownItemsFor(item: NavigationItem) {
-  return (item.dropdown_items ?? []).filter(
-    (child) => child.label?.trim() && child.target_anchor?.trim(),
-  );
+function validDropdownItems(items?: DropdownItem[]) {
+  return (items ?? []).filter((child) => child.label?.trim() && child.target_anchor?.trim());
+}
+
+function dropdownGroupsFor(item: NavigationItem) {
+  const groups = (item.dropdown_groups ?? [])
+    .map((group) => ({ ...group, dropdown_items: validDropdownItems(group.dropdown_items) }))
+    .filter((group) => group.dropdown_items.length > 0);
+
+  if (groups.length > 0) return groups;
+
+  const legacyItems = validDropdownItems(item.dropdown_items);
+  return legacyItems.length > 0 ? [{ _uid: `${item._uid || item.label}-links`, dropdown_items: legacyItems }] : [];
 }
 
 export default function Header({ blok }: HeaderProps) {
@@ -86,7 +104,7 @@ export default function Header({ blok }: HeaderProps) {
       ]).filter(
         (item) =>
           item.label?.trim() &&
-          (item.target_anchor?.trim() || dropdownItemsFor(item).length > 0),
+          (item.target_anchor?.trim() || dropdownGroupsFor(item).length > 0),
       );
 
   const showAuthActions = blok?.show_authentication_actions ?? true;
@@ -194,9 +212,9 @@ export default function Header({ blok }: HeaderProps) {
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {navigationItems.map((item, index) => {
             const key = item._uid || `${item.label}-${index}`;
-            const dropdownItems = dropdownItemsFor(item);
+            const dropdownGroups = dropdownGroupsFor(item);
 
-            if (dropdownItems.length === 0) {
+            if (dropdownGroups.length === 0) {
               return navigationLink(
                 item,
                 "rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40",
@@ -235,9 +253,11 @@ export default function Header({ blok }: HeaderProps) {
                   {isOpen && (
                     <div
                       className={`absolute left-1/2 top-full -translate-x-1/2 pt-3 ${
-                        dropdownItems.length === 1
+                        dropdownGroups.length === 1
                           ? "w-[min(420px,calc(100vw-3rem))]"
-                          : "w-[min(680px,calc(100vw-3rem))]"
+                          : dropdownGroups.length === 2
+                            ? "w-[min(720px,calc(100vw-3rem))]"
+                            : "w-[min(1040px,calc(100vw-3rem))]"
                       }`}
                     >
                       <motion.div
@@ -246,44 +266,65 @@ export default function Header({ blok }: HeaderProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -6, scale: 0.985 }}
                         transition={{ duration: 0.18, ease: EASE }}
-                        className={`grid gap-2 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.18)] ${
-                          dropdownItems.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                        className={`grid gap-7 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.18)] ${
+                          dropdownGroups.length === 1
+                            ? "grid-cols-1"
+                            : dropdownGroups.length === 2
+                              ? "grid-cols-2"
+                              : dropdownGroups.length === 3
+                                ? "grid-cols-3"
+                                : "grid-cols-4"
                         }`}
                       >
-                        {dropdownItems.map((child) => {
-                          const target = child.target_anchor || "#";
-                          return (
-                            <a
-                              key={child._uid || `${child.label}-${target}`}
-                              {...(child._uid ? storyblokEditable(child as any) : {})}
-                              role="menuitem"
-                              href={hrefFor(target)}
-                              target={child.open_in_new_tab ? "_blank" : undefined}
-                              rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
-                              onClick={(event) => {
-                                setOpenDropdown(null);
-                                if (!child.open_in_new_tab) handleNavigation(event, target);
-                              }}
-                              className="group flex items-start justify-between gap-4 rounded-xl border border-transparent p-4 transition-all duration-200 hover:border-blue-100 hover:bg-blue-50/70 focus-visible:border-blue-200 focus-visible:bg-blue-50 focus-visible:outline-none"
-                            >
-                              <span>
-                                <span className="block text-sm font-semibold text-slate-950 transition-colors group-hover:text-brand">
-                                  {child.label}
-                                </span>
-                                {child.description?.trim() && (
-                                  <span className="mt-1.5 block text-sm leading-5 text-slate-500">
-                                    {child.description}
-                                  </span>
-                                )}
-                              </span>
-                              <ArrowUpRight
-                                size={16}
-                                className="mt-0.5 shrink-0 text-slate-400 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand"
-                                aria-hidden="true"
-                              />
-                            </a>
-                          );
-                        })}
+                        {dropdownGroups.map((group) => (
+                          <div
+                            key={group._uid || group.title || "links"}
+                            {...(group._uid ? storyblokEditable(group as any) : {})}
+                            className="min-w-0"
+                          >
+                            {group.title?.trim() && (
+                              <p className="mb-3 border-b border-slate-100 pb-3 text-base font-semibold tracking-tight text-slate-950">
+                                {group.title}
+                              </p>
+                            )}
+                            <div className="space-y-1">
+                              {group.dropdown_items.map((child) => {
+                                const target = child.target_anchor || "#";
+                                return (
+                                  <a
+                                    key={child._uid || `${child.label}-${target}`}
+                                    {...(child._uid ? storyblokEditable(child as any) : {})}
+                                    role="menuitem"
+                                    href={hrefFor(target)}
+                                    target={child.open_in_new_tab ? "_blank" : undefined}
+                                    rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
+                                    onClick={(event) => {
+                                      setOpenDropdown(null);
+                                      if (!child.open_in_new_tab) handleNavigation(event, target);
+                                    }}
+                                    className="group flex items-start justify-between gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-blue-50/80 focus-visible:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+                                  >
+                                    <span className="min-w-0">
+                                      <span className="block text-sm font-semibold text-slate-900 transition-colors group-hover:text-brand">
+                                        {child.label}
+                                      </span>
+                                      {child.description?.trim() && (
+                                        <span className="mt-1 block text-sm leading-5 text-slate-500">
+                                          {child.description}
+                                        </span>
+                                      )}
+                                    </span>
+                                    <ArrowUpRight
+                                      size={15}
+                                      className="mt-0.5 shrink-0 text-slate-300 opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand group-hover:opacity-100"
+                                      aria-hidden="true"
+                                    />
+                                  </a>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </motion.div>
                     </div>
                   )}
@@ -344,8 +385,8 @@ export default function Header({ blok }: HeaderProps) {
             <div className="mx-auto max-w-[1280px] space-y-1 px-4 py-4 sm:px-6">
               {navigationItems.map((item, index) => {
                 const key = item._uid || `${item.label}-${index}`;
-                const dropdownItems = dropdownItemsFor(item);
-                if (dropdownItems.length === 0) {
+                const dropdownGroups = dropdownGroupsFor(item);
+                if (dropdownGroups.length === 0) {
                   return navigationLink(
                     item,
                     "block rounded-lg px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-950",
@@ -375,33 +416,44 @@ export default function Header({ blok }: HeaderProps) {
                           exit={{ opacity: 0, height: 0 }}
                           className="overflow-hidden"
                         >
-                          <div className="space-y-1 pb-2 pl-3">
-                            {dropdownItems.map((child) => {
-                              const target = child.target_anchor || "#";
-                              return (
-                                <a
-                                  key={child._uid || `${child.label}-${target}`}
-                                  {...(child._uid ? storyblokEditable(child as any) : {})}
-                                  href={hrefFor(target)}
-                                  target={child.open_in_new_tab ? "_blank" : undefined}
-                                  rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
-                                  onClick={(event) => {
-                                    setMobileOpen(false);
-                                    if (!child.open_in_new_tab) handleNavigation(event, target);
-                                  }}
-                                  className="block rounded-lg px-3 py-3 hover:bg-blue-50"
-                                >
-                                  <span className="block text-sm font-semibold text-slate-900">
-                                    {child.label}
-                                  </span>
-                                  {child.description?.trim() && (
-                                    <span className="mt-1 block text-sm leading-5 text-slate-500">
-                                      {child.description}
-                                    </span>
-                                  )}
-                                </a>
-                              );
-                            })}
+                          <div className="space-y-4 pb-3 pl-3">
+                            {dropdownGroups.map((group) => (
+                              <div key={group._uid || group.title || "links"}>
+                                {group.title?.trim() && (
+                                  <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                                    {group.title}
+                                  </p>
+                                )}
+                                <div className="space-y-1">
+                                  {group.dropdown_items.map((child) => {
+                                    const target = child.target_anchor || "#";
+                                    return (
+                                      <a
+                                        key={child._uid || `${child.label}-${target}`}
+                                        {...(child._uid ? storyblokEditable(child as any) : {})}
+                                        href={hrefFor(target)}
+                                        target={child.open_in_new_tab ? "_blank" : undefined}
+                                        rel={child.open_in_new_tab ? "noopener noreferrer" : undefined}
+                                        onClick={(event) => {
+                                          setMobileOpen(false);
+                                          if (!child.open_in_new_tab) handleNavigation(event, target);
+                                        }}
+                                        className="block rounded-lg px-3 py-3 hover:bg-blue-50"
+                                      >
+                                        <span className="block text-sm font-semibold text-slate-900">
+                                          {child.label}
+                                        </span>
+                                        {child.description?.trim() && (
+                                          <span className="mt-1 block text-sm leading-5 text-slate-500">
+                                            {child.description}
+                                          </span>
+                                        )}
+                                      </a>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </motion.div>
                       )}

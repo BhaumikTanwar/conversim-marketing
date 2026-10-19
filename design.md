@@ -421,9 +421,11 @@ Use Featured sparingly so the page retains a clear hierarchy.
 - Label.
 - Optional destination: page path, section anchor, or full URL.
 - Optional open-in-new-tab setting.
-- Optional reorderable Dropdown links. Adding at least one complete Dropdown link automatically turns the navigation item into a dropdown; no separate type or toggle is needed.
+- Optional reorderable Dropdown groups. Each group has an optional column title and reorderable Dropdown links. Adding at least one complete link automatically turns the navigation item into a dropdown; no separate type or toggle is needed.
 
-A Dropdown link contains a label, optional supporting description, destination, and optional open-in-new-tab setting. Incomplete dropdown links are hidden. On desktop, the menu opens on hover, keyboard focus, or click. On mobile, it opens as an accordion.
+A Dropdown group becomes one mega-menu column on desktop. A Dropdown link contains a label, optional supporting description, destination, and optional open-in-new-tab setting. Empty groups and incomplete links are hidden. On desktop, the menu opens on hover, keyboard focus, or click. On mobile, group titles and links appear inside an accordion.
+
+Existing flat Dropdown links remain supported and render as one untitled column, allowing older header content to keep working during migration.
 
 An item without Dropdown links behaves as a standard navigation link and is hidden when its destination is missing.
 
