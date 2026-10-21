@@ -196,7 +196,7 @@ export default function Header({ blok }: HeaderProps) {
             : "bg-white/85 backdrop-blur-lg"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 md:h-20 lg:px-8 2xl:max-w-[1440px] 3xl:max-w-[1760px]">
+      <div className="relative mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 md:h-20 lg:px-8 2xl:max-w-[1440px] 3xl:max-w-[1760px]">
         {blok?.logo?.filename ? (
           <a href="/" aria-label={blok.logo_alt_text || blok.logo.alt || "Home"}>
             <img
@@ -209,7 +209,7 @@ export default function Header({ blok }: HeaderProps) {
           <Logo className="text-lg font-semibold" />
         )}
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-1 self-stretch md:flex" aria-label="Main navigation">
           {navigationItems.map((item, index) => {
             const key = item._uid || `${item.label}-${index}`;
             const dropdownGroups = dropdownGroupsFor(item);
@@ -225,7 +225,10 @@ export default function Header({ blok }: HeaderProps) {
             return (
               <div
                 key={key}
-                className="relative"
+                // Narrow panels sit under their button; the 1040px one centres on the header row instead,
+                // since centred on its button it runs off-screen below ~1500px.
+                // Full row height keeps the hover area unbroken between the button and the panel.
+                className={`flex items-center self-stretch ${dropdownGroups.length < 3 ? "relative" : ""}`}
                 onMouseEnter={() => setOpenDropdown(key)}
                 onMouseLeave={() => setOpenDropdown(null)}
                 onBlur={(event) => {
@@ -237,7 +240,8 @@ export default function Header({ blok }: HeaderProps) {
                   {...(item._uid ? storyblokEditable(item as any) : {})}
                   aria-expanded={isOpen}
                   aria-haspopup="menu"
-                  onClick={() => setOpenDropdown(isOpen ? null : key)}
+                  // Hover already opened it, so a mouse/touch click (detail > 0) only opens; keyboard Enter/Space still toggles.
+                  onClick={(event) => setOpenDropdown(isOpen && event.detail === 0 ? null : key)}
                   onFocus={() => setOpenDropdown(key)}
                   className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
@@ -252,7 +256,7 @@ export default function Header({ blok }: HeaderProps) {
                 <AnimatePresence>
                   {isOpen && (
                     <div
-                      className={`absolute left-1/2 top-full -translate-x-1/2 pt-3 ${
+                      className={`absolute left-1/2 top-full -translate-x-1/2 ${
                         dropdownGroups.length === 1
                           ? "w-[min(420px,calc(100vw-3rem))]"
                           : dropdownGroups.length === 2
