@@ -3,6 +3,8 @@ import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { scoreColor } from "../../../lib/scoreColor";
 import StoryblokCta, { type StoryblokCtaValue } from "./StoryblokCta";
+import HeroImage, { type HeroImageValue } from "./HeroImage";
+import HeroVideo, { type HeroVideoValue } from "./HeroVideo";
 
 interface HeroStat {
   label?: string;
@@ -20,6 +22,25 @@ interface HeroAsset {
 }
 
 interface HeroLink extends StoryblokCtaValue { linktype?: string; }
+
+interface HeroMediaBlock {
+  component?: string;
+  _uid?: string;
+  video?: HeroVideoValue["video"];
+  video_url?: string;
+  video_poster?: HeroVideoValue["video_poster"];
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  show_controls?: boolean;
+  live_label?: string;
+  image?: HeroImageValue["image"];
+  image_url?: string;
+  alt_text?: string;
+  object_fit?: string;
+  background_style?: string;
+  show_shadow?: boolean;
+}
 
 interface HeroBlok {
   _uid?: string;
@@ -43,6 +64,7 @@ interface HeroBlok {
 
   video?: HeroAsset | string;
   video_poster?: HeroAsset | string;
+  media?: HeroMediaBlock[] | HeroMediaBlock;
 
   live_label?: string;
   feedback_label?: string;
@@ -115,11 +137,18 @@ export default function HeroSection({ blok }: HeroSectionProps) {
     ? blok.video_poster
     : blok?.video_poster?.filename || blok?.video_poster?.url;
 
-  const showVideo = Boolean(videoSrc);
+  const mediaBlock = Array.isArray(blok?.media) ? blok.media.find(Boolean) : blok?.media;
+  const mediaType = mediaBlock?.component;
+  const hasImageMedia = mediaType === "hero_image" && Boolean(mediaBlock?.image || mediaBlock?.image_url);
+  const hasVideoMedia = mediaType === "hero_video" && Boolean(mediaBlock?.video || mediaBlock?.video_url);
+  const showVideo = hasVideoMedia || (!mediaBlock && Boolean(videoSrc));
+  const showMedia = showVideo || hasImageMedia;
   const showStats = stats.length > 0;
-  const compactTextHero = !showVideo && centered;
+  const compactTextHero = !showMedia && centered;
 
-  const liveLabel = blok ? blok.live_label?.trim() : "Live session";
+  const liveLabel = blok
+    ? (mediaBlock?.live_label ?? blok.live_label)?.trim()
+    : "Live session";
   const feedbackLabel = blok ? blok.feedback_label?.trim() : "Good empathy shown";
   const scoreLabel = blok ? blok.score_label?.trim() : "Live score";
 
@@ -139,7 +168,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
         aria-hidden
       />
 
-      <div className={`max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid ${!showVideo || centered ? "lg:grid-cols-1" : mediaRight ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"} gap-12 lg:gap-20 items-center w-full relative z-10`}>
+      <div className={`max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid ${!showMedia || centered ? "lg:grid-cols-1" : mediaRight ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"} gap-12 lg:gap-20 items-center w-full relative z-10`}>
         <div className={`flex flex-col ${compactTextHero ? "gap-4 md:gap-5" : "gap-7 md:gap-9"} ${(!showVideo || centered) ? "items-center text-center" : ""} ${mediaLeft ? "lg:order-2" : "lg:order-1"}`}>
           {eyebrow && <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -259,7 +288,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
           </motion.div>}
         </div>
 
-        {showVideo && <motion.div
+        {showMedia && <motion.div
           initial={{
             opacity: 0,
             y: 32,
@@ -277,26 +306,27 @@ export default function HeroSection({ blok }: HeroSectionProps) {
           }}
           className={`relative w-full aspect-[4/5] max-w-md xl:max-w-lg ${centered ? "lg:mx-auto lg:mt-0" : "hidden lg:block lg:ml-auto lg:mt-10"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}
         >
-          <div className="w-full h-full bg-slate-900 rounded-[1.75rem] overflow-hidden shadow-[0_30px_60px_-20px_rgba(29,28,24,0.35)] ring-1 ring-slate-900/10">
-            <video
-              className="w-full h-full object-contain object-center scale-110"
-              autoPlay
-              preload="metadata"
-              muted
-              loop
-              playsInline
-              src={videoSrc}
-              poster={videoPoster || undefined}
-            />
+          <div className={`w-full h-full rounded-[1.75rem] overflow-hidden ring-1 ring-slate-900/10 ${hasImageMedia ? "bg-transparent" : "bg-slate-900"}`}>
+            {hasImageMedia ? (
+              <HeroImage value={mediaBlock as HeroImageValue} />
+            ) : (
+              <HeroVideo
+                value={{
+                  ...(mediaBlock as HeroVideoValue | undefined),
+                  video: mediaBlock?.video || videoSrc,
+                  video_poster: mediaBlock?.video_poster || videoPoster,
+                }}
+              />
+            )}
           </div>
 
-          {liveLabel && <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+          {showVideo && liveLabel && <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />
 
             {liveLabel}
           </div>}
 
-          {feedbackLabel && <motion.div
+          {showVideo && feedbackLabel && <motion.div
             initial={{
               opacity: 0,
               x: 16,
@@ -319,7 +349,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             {feedbackLabel}
           </motion.div>}
 
-          {(hasScore || criteria.length > 0) && <motion.div
+          {showVideo && (hasScore || criteria.length > 0) && <motion.div
             initial={{
               opacity: 0,
               y: 16,

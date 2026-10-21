@@ -164,6 +164,7 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
       normalized.layout_variant = block.layout_variant ?? block.layout ?? "split";
       normalized.description = block.description ?? block.subtext;
       normalized.video = block.video ?? block.video_url;
+      normalized.media = firstBlock(block.media);
       normalized.live_label = block.live_label ?? block.video_label;
       normalized.primary_cta = normalizeCta(block.primary_cta);
       normalized.secondary_cta = normalizeCta(block.secondary_cta);
