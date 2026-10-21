@@ -226,7 +226,7 @@ Use for a set of related capabilities, proof points, or workflow stages where vi
 
 Fields:
 
-- Optional eyebrow, heading, introduction, and Section ID.
+- Optional eyebrow, heading, and introduction.
 - Background: White, Soft, or Dark.
 - Reorderable tabs. Each tab can provide a label, title, description, image, and optional action.
 
@@ -375,7 +375,7 @@ This is a general-purpose card. It is not tied to blogs, products, people, or pr
 | Card layout | `layout_variant` | Standard, Compact, Wide, Media left, or Media right. |
 | Icon | `icon` | Optional Material Symbols icon used when there is no image. |
 
-The older technical `name` field is read only as a title fallback for existing cards. New cards should use Title.
+The editor exposes one title field. The renderer still tolerates the older `name` key in previously saved stories so removing the legacy editor field does not blank existing cards.
 
 Media guidance:
 

@@ -14,7 +14,9 @@ export interface FeatureBlok {
   info?: string;
   price?: string;
   link_label?: string;
+  link_text?: string;
   action_label?: string;
+  action_url?: string;
   cta_label?: string;
   button_label?: string;
   link_url?: string;
@@ -75,7 +77,10 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   const titleColor = dark ? "text-white" : "text-slate-950";
   const descriptionColor = dark ? "text-slate-300" : "text-slate-600";
   const metadataColor = dark ? "text-slate-400" : "text-slate-500";
-  const actionLabel = blok.link_label || blok.action_label || blok.cta_label || blok.button_label;
+  const actionLabel = [blok.link_label, blok.action_label, blok.cta_label, blok.button_label, blok.link_text]
+    .find((value) => typeof value === "string" && value.trim())
+    ?.trim();
+  const actionUrl = blok.link_url || blok.action_url;
   // Keep these class names literal. Tailwind cannot generate classes assembled
   // from breakpoint/column variables, which made media-left and media-right
   // render identically in split sections.
@@ -102,7 +107,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
         <h3 className={`${compact ? "text-base" : "text-xl"} font-semibold leading-tight tracking-tight ${titleColor}`}>{title}</h3>
         {blok.description && <p className={`${compact ? "mt-2 line-clamp-2 text-xs" : "mt-3 line-clamp-3 text-sm"} leading-relaxed ${descriptionColor}`}>{blok.description}</p>}
         {metadata && <p className={`mt-3 text-[11px] ${metadataColor}`}>{metadata}</p>}
-        {actionLabel && (blok.link_url ? <a href={marketingHref(blok.link_url)} className={`${compact ? "pt-3 text-xs" : "pt-5 text-sm"} mt-auto inline-flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-800`}>{actionLabel}<span aria-hidden="true">→</span></a> : <span className={`${compact ? "pt-3 text-xs" : "pt-5 text-sm"} mt-auto inline-flex items-center font-semibold text-blue-600`}>{actionLabel}</span>)}
+        {actionLabel && (actionUrl ? <a href={marketingHref(actionUrl)} className={`${compact ? "mt-3 text-xs" : "mt-5 text-sm"} inline-flex w-fit shrink-0 items-center gap-2 font-semibold text-blue-600 hover:text-blue-800`}>{actionLabel}<span aria-hidden="true">→</span></a> : <span className={`${compact ? "mt-3 text-xs" : "mt-5 text-sm"} inline-flex w-fit shrink-0 font-semibold text-blue-600`}>{actionLabel}</span>)}
       </div>
     </div>
   );

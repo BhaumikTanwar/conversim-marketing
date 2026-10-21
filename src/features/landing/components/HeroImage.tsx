@@ -5,6 +5,7 @@ export interface HeroImageValue {
   object_fit?: string;
   background_style?: string;
   show_shadow?: boolean;
+  show_border?: boolean;
 }
 
 function assetUrl(value: HeroImageValue["image"]): string {

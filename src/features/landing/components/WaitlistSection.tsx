@@ -18,6 +18,7 @@ interface WaitlistBlok {
   cta_url?: string;
   cta_icon?: string;
   cta_style?: string;
+  ctas?: Array<{ label?: string; url?: string; icon?: string; style?: string; variant?: string }>;
   section_id?: string;
 }
 
@@ -38,10 +39,11 @@ export default function WaitlistSection({
     ? blok.description?.trim()
     : "Sign up and build your first custom simulation today.";
 
-  const ctaLabel = blok ? blok.cta_label?.trim() : "Sign up";
-
-  const ctaUrl = blok ? blok.cta_url?.trim() : "/login";
-  if (!heading && !description && !(ctaLabel && ctaUrl)) return null;
+  const actions = blok
+    ? (blok.ctas?.length ? blok.ctas : [{ label: blok.cta_label, url: blok.cta_url, icon: blok.cta_icon, style: blok.cta_style }])
+        .filter((action) => action.label?.trim() && action.url?.trim())
+    : [{ label: "Sign up", url: "/login" }];
+  if (!heading && !description && !actions.length) return null;
 
   return (
     <section
@@ -89,7 +91,7 @@ export default function WaitlistSection({
             {description}
           </motion.p>}
 
-          {ctaLabel && ctaUrl && <motion.div
+          {actions.length > 0 && <motion.div
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -99,10 +101,15 @@ export default function WaitlistSection({
               ease: EASE,
             }}
           >
-            <StoryblokCta
-              value={{ label: ctaLabel, url: ctaUrl, icon: blok?.cta_icon, style: blok?.cta_style }}
-              className="px-8 shadow-[0_4px_16px_rgba(37,99,235,0.3)]"
-            />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {actions.map((action, index) => (
+                <StoryblokCta
+                  key={`${action.url}-${index}`}
+                  value={action}
+                  className="px-8 shadow-[0_4px_16px_rgba(37,99,235,0.3)]"
+                />
+              ))}
+            </div>
           </motion.div>}
         </div>
       </motion.div>

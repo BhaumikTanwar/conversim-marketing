@@ -62,6 +62,11 @@ function normalizeCta(value: any) {
     : block;
 }
 
+function normalizeCtaList(value: any): StoryblokBlock[] {
+  const blocks = Array.isArray(value) ? value : value ? [value] : [];
+  return blocks.map(normalizeCta).filter((block): block is StoryblokBlock => Boolean(block));
+}
+
 function normalizeHeader(value: any): StoryblokBlock | undefined {
   const block = firstBlock(value);
   if (!block || block.visible === false) return undefined;
@@ -246,7 +251,8 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
 
   if (block.component === "waitlist") {
     normalized.description = block.description ?? block.body;
-    const cta = normalizeCta(block.cta);
+    normalized.ctas = normalizeCtaList(block.cta);
+    const cta = normalized.ctas[0];
     normalized.cta_label = block.cta_label ?? cta?.label;
     normalized.cta_url = block.cta_url ?? cta?.url;
     normalized.cta_icon = block.cta_icon ?? cta?.icon;

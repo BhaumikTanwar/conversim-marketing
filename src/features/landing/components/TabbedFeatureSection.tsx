@@ -22,7 +22,6 @@ interface TabbedFeatureBlok {
   heading?: string;
   intro?: string;
   tabs?: TabItem[];
-  section_id?: string;
   background_style?: string;
 }
 
@@ -41,7 +40,7 @@ export default function TabbedFeatureSection({ blok }: { blok?: TabbedFeatureBlo
   const image = imageUrl(active.image);
 
   return (
-    <section id={blok.section_id} {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`${surface} px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24`}>
+    <section {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`${surface} px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24`}>
       <div className="mx-auto max-w-7xl">
         {(blok.eyebrow?.trim() || blok.heading?.trim() || blok.intro?.trim()) && <div className="mb-10 grid gap-4 lg:grid-cols-[1fr_1.4fr] lg:items-end"><div>{blok.eyebrow?.trim() && <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand">{blok.eyebrow}</p>}{blok.heading?.trim() && <h2 className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{blok.heading}</h2>}</div>{blok.intro?.trim() && <p className={`max-w-2xl text-base leading-7 ${dark ? "text-slate-300" : "text-slate-600"}`}>{blok.intro}</p>}</div>}
         <div className={`flex flex-wrap gap-2 border-b pb-3 ${dark ? "border-white/15" : "border-slate-200"}`} role="tablist" aria-label={blok.heading || "Features"}>
