@@ -26,9 +26,12 @@ export default function StoryblokPage() {
     fetchError: string | null;
   }>({ slug: "", story: null, notFound: false, fetchError: null });
   const story = useStoryblokState<any>(result.story);
-  const seoContent = story?.content;
-  usePageMeta(pathname, seoContent ? {
-    title: seoContent.seo_title || story.name,
+  const page = story ? normalizeStoryblokPage(story.content) : null;
+  const notFound = result.slug === slug && !result.fetchError && (!page || page.sections.length === 0);
+  const seoContent = notFound ? undefined : story?.content;
+  // The SPA rewrite answers every URL with a 200, so the 404 and error views must keep themselves out of the index.
+  usePageMeta(pathname, notFound || !storyblokApi || result.fetchError ? { noIndex: true } : seoContent ? {
+    title: seoContent.seo_title || story?.name,
     description: seoContent.seo_description || "",
     image: seoContent.og_image?.filename || seoContent.og_image?.url,
     noIndex: Boolean(seoContent.no_index ?? seoContent.noindex),
@@ -78,6 +81,16 @@ export default function StoryblokPage() {
     return () => window.clearTimeout(timer);
   }, [story, hash]);
 
+  // Without a token storyblokInit never registers the API, so no request runs and the loader would never clear.
+  if (!storyblokApi) {
+    return (
+      <main className="min-h-dvh flex flex-col items-center justify-center gap-3 bg-bg px-6 text-center">
+        <h1 className="text-2xl font-semibold text-aurora-text">Could not load this page</h1>
+        <p className="max-w-2xl text-sm text-aurora-text-2">Please try again later.</p>
+      </main>
+    );
+  }
+
   if (result.slug !== slug) {
     return (
       <div className="min-h-dvh bg-bg flex items-center justify-center">
@@ -96,13 +109,7 @@ export default function StoryblokPage() {
       </main>
     );
   }
-  if (result.notFound || !story) return <NotFound />;
-
-  const page = normalizeStoryblokPage(story.content);
-
-  if (page.sections.length === 0) {
-    return <NotFound />;
-  }
+  if (notFound || !page) return <NotFound />;
 
   return (
     <>
