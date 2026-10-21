@@ -18,6 +18,9 @@ import SectorFAQ from "./components/SectorFAQ";
 import Teaser from "./components/Teaser";
 import UseCasesSection from "./components/UseCasesSection";
 import WaitlistSection from "./components/WaitlistSection";
+import LogoStrip from "./components/LogoStrip";
+import TabbedFeatureSection from "./components/TabbedFeatureSection";
+import StatsBar from "./components/StatsBar";
 
 export type StoryblokBlock = Record<string, any>;
 
@@ -35,6 +38,9 @@ const sectionIds: Record<string, string> = {
   content_filter: "content-filter",
   resource_grid: "resources",
   customer_result: "customer-result",
+  logo_strip: "logo-strip",
+  tabbed_feature: "tabbed-feature",
+  stats_bar: "stats",
 };
 
 const sectionComponents = new Set(Object.keys(sectionIds));
@@ -195,6 +201,28 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
       normalized.cta_url = normalizeUrl(block.cta_url ?? block.url);
       normalized.open_in_new_tab = block.open_in_new_tab ?? block.open_new_tab;
       break;
+    case "logo_strip":
+      normalized.items = (Array.isArray(block.items) ? block.items : []).map(
+        (item: StoryblokBlock) => ({
+          ...item,
+          url: normalizeUrl(item.url),
+        }),
+      );
+      break;
+    case "tabbed_feature":
+      normalized.tabs = (Array.isArray(block.tabs) ? block.tabs : []).map(
+        (tab: StoryblokBlock) => ({
+          ...tab,
+          label: tab.label ?? tab.category ?? tab.topic,
+          title: tab.title ?? tab.heading ?? tab.name,
+          description: tab.description ?? tab.body,
+          action_label: tab.action_label ?? tab.link_label ?? tab.cta_label ?? tab.button_label,
+          action_url: normalizeUrl(tab.action_url ?? tab.link_url ?? tab.cta_url ?? tab.button_url ?? tab.url),
+        }),
+      );
+      break;
+    case "stats_bar":
+      break;
     case "preview":
     case "faq":
     case "pricing":
@@ -314,6 +342,9 @@ const renderers: Record<string, ComponentType<{ blok?: any }>> = {
   content_filter: ContentFilterBar,
   resource_grid: ResourceGrid,
   customer_result: CustomerResult,
+  logo_strip: LogoStrip,
+  tabbed_feature: TabbedFeatureSection,
+  stats_bar: StatsBar,
 };
 
 export function StoryblokSections({ sections }: { sections: StoryblokBlock[] }) {
