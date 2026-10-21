@@ -32,7 +32,7 @@ export default function LogoStrip({ blok }: { blok?: LogoStripBlok }) {
     <section id={blok.section_id} {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`${surface} border-y border-slate-200 px-4 py-8 sm:px-6 lg:px-8`}>
       <div className="mx-auto max-w-7xl">
         {blok.eyebrow?.trim() && <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{blok.eyebrow}</p>}
-        <div className="grid grid-cols-2 items-center gap-x-8 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] items-center gap-x-8 gap-y-6">
           {items.map((item) => {
             const image = assetUrl(item.logo);
             const content = image ? <img src={image} alt={typeof item.logo === "object" ? item.logo.alt || item.name || "Partner logo" : item.name || "Partner logo"} className="max-h-8 max-w-[9rem] object-contain grayscale transition duration-300 hover:grayscale-0" /> : <span className="text-sm font-semibold text-slate-700">{item.name}</span>;

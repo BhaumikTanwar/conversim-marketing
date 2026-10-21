@@ -21,6 +21,7 @@ export interface FeatureBlok {
   image?: { filename?: string; alt?: string } | string;
   layout_variant?: string;
   presentation?: string;
+  media_fit?: string;
   background_style?: string;
 }
 
@@ -44,6 +45,8 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   const hasMedia = Boolean(image || blok.icon);
   const layout = normalizeLayout(blok.layout_variant);
   const presentation = (blok.presentation || "fit").toLowerCase().replace(/[\s_]+/g, "-");
+  const mediaFit = (blok.media_fit || (presentation === "fill" ? "fill" : "fit")).toLowerCase().replace(/[\s_]+/g, "-");
+  const imageFit = mediaFit === "fill" ? "object-cover" : "object-contain";
   const fill = presentation === "fill" || presentation === "full-width";
   const splitPresentation = presentation === "split" || presentation === "split-section";
   const compact = layout === "compact";
@@ -88,7 +91,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   const card = (
     <div {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`group flex h-full overflow-hidden ${splitPresentation ? "bg-transparent" : fill ? "rounded-none border-x-0 border-y" : "rounded-2xl border"} ${splitPresentation ? "border-0 shadow-none" : `${cardBorder} ${cardBackground} ${fill ? "shadow-none" : dark ? "shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)]" : "shadow-sm hover:shadow-md"}`} transition duration-300 ${fill || splitPresentation ? "" : "hover:-translate-y-0.5"} ${fillHeight} ${splitMedia ? `${gridClass} ${mediaColumns} ${cardHeight}` : "flex-col"}`}>
       {image ? (
-        <img src={image} alt={typeof blok.image === "object" ? blok.image.alt || title : title} className={`w-full ${splitPresentation ? "object-contain" : "object-cover"} transition duration-500 group-hover:scale-[1.03] ${splitMedia ? `${mediaRowClass} ${splitPresentation ? "lg:h-auto" : "sm:h-full sm:aspect-auto"} ${mediaColumnClass}` : "aspect-[16/9]"}`} />
+        <img src={image} alt={typeof blok.image === "object" ? blok.image.alt || title : title} className={`w-full bg-slate-50 ${imageFit} transition duration-500 group-hover:scale-[1.03] ${splitMedia ? `${mediaRowClass} ${splitPresentation ? "lg:h-auto" : "sm:h-full sm:aspect-auto"} ${mediaColumnClass}` : "aspect-[16/9]"}`} />
       ) : blok.icon ? (
         <div className={`flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-cyan-100 text-blue-600 ${splitMedia ? `${mediaRowClass} ${splitPresentation ? "lg:h-auto" : "sm:h-full"} ${mediaColumnClass}` : "aspect-[16/9]"}`}>
           <span className={`material-symbols-outlined ${compact ? "text-3xl" : "text-5xl"}`} aria-hidden="true">{blok.icon}</span>

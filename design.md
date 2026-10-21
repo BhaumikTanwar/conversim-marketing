@@ -152,6 +152,7 @@ Behavior:
 Media guidance:
 
 - Video: MP4 or WebM, portrait 4:5 preferred, approximately 1080×1350 px, compressed for web.
+- Hero image: 1600×1200 px minimum at 4:3 for split layouts; 1920×1080 px at 16:9 also works for wide media. Use transparent PNG/WebP when the artwork should sit on the section background.
 - Poster: match the video ratio and crop; JPG, WebP, or AVIF.
 - Poster and video recommendations are guidance, not Storyblok upload limits.
 
@@ -217,7 +218,25 @@ Media guidance:
 - Video: MP4 or WebM, 16:9 preferred, approximately 1920×1080 px, compressed for web.
 - Poster: 16:9, approximately 1920×1080 px, JPG, WebP, or AVIF.
 
-### 5.5 Pricing or contact section
+### 5.5 Tabbed feature section
+
+**Technical component:** `tabbed_feature`
+
+Use for a set of related capabilities, proof points, or workflow stages where visitors should switch between panels without leaving the page. Add existing Content Card widgets as tabs.
+
+Fields:
+
+- Optional eyebrow, heading, introduction, and Section ID.
+- Background: White, Soft, or Dark.
+- Reorderable tabs. Each tab can provide a label, title, description, image, and optional action.
+
+Media guidance:
+
+- Tab image: approximately 1600×1000 px at 8:5, or 1600×900 px at 16:9 when the source is a product screenshot or video still.
+- Use PNG/WebP for interface screenshots and JPG/WebP for photographic artwork. Keep important UI text large enough to remain legible on mobile.
+- If a tab has no image, the panel renders a styled fallback area and does not leave a broken image element.
+
+### 5.6 Pricing or contact section
 
 **Technical component:** `pricing`
 
@@ -235,7 +254,7 @@ Fields:
 
 The action uses the reusable button's label, destination, icon, and style.
 
-### 5.6 FAQ section
+### 5.7 FAQ section
 
 **Technical component:** `faq`
 
@@ -252,7 +271,7 @@ Fields:
 
 The default desktop layout uses a sticky introduction beside the questions. Centered uses a single-column presentation.
 
-### 5.7 Call to action section
+### 5.8 Call to action section
 
 **Technical component:** `waitlist`
 
@@ -268,7 +287,7 @@ Fields:
 
 The action uses the reusable button's label, destination, icon, and style.
 
-### 5.8 Card grid section
+### 5.9 Card grid section
 
 **Technical component:** `grid`
 
@@ -287,13 +306,13 @@ Fields:
 
 Wide cards span the complete grid. Media-left and media-right cards may span two columns. Cards without a title are ignored.
 
-### 5.9 Standalone Content Card
+### 5.10 Standalone Content Card
 
 **Technical component:** `feature`
 
 The same card may be added directly as a page section or nested inside a Card grid. Prefer a Card grid for groups of related cards.
 
-### 5.10 CTA banner
+### 5.11 CTA banner
 
 **Technical component:** `teaser`
 
@@ -352,6 +371,7 @@ This is a general-purpose card. It is not tied to blogs, products, people, or pr
 | Action label | `link_label` | Optional action text. Defaults to “Learn more” only when a destination exists. |
 | Action destination | `link_url` | Optional internal or external link. |
 | Image | `image` | Optional card image. |
+| Image display | `media_fit` | Fit shows the complete image without cropping; Fill crops to fill the media frame. Fit is recommended for screenshots and designs. |
 | Card layout | `layout_variant` | Standard, Compact, Wide, Media left, or Media right. |
 | Icon | `icon` | Optional Material Symbols icon used when there is no image. |
 
@@ -359,7 +379,8 @@ The older technical `name` field is read only as a title fallback for existing c
 
 Media guidance:
 
-- Recommended image: 1600×900 px at 16:9.
+- Recommended image: 1600×900 px at 16:9. This is the source recommendation, not a crop requirement.
+- Image display: Fit is the default and preserves the full image with letterboxing when its aspect ratio differs from the card frame. Use Fill only when edge-to-edge cropping is intentional.
 - Use JPG, WebP, PNG, or AVIF.
 - Aim for less than 1 MB where practical.
 - If no image or icon is supplied, no empty media placeholder is rendered.
@@ -399,14 +420,33 @@ Use Featured sparingly so the page retains a clear hierarchy.
 - Value, such as `94%` or `50+`.
 - Label explaining the value.
 
-### 6.7 Score criterion
+### 6.7 Logo Strip and Stats Bar
+
+**Technical components:** `logo_strip`, `stats_bar`
+
+Logo Strip is a full-width trust, customer, partner, or integration row. Add Logo Item widgets; each item may contain an uploaded logo or a text name and an optional destination. Items are distributed across the available width, so a short list does not cluster at the left edge.
+
+Media guidance for Logo Item:
+
+- Recommended logo canvas: approximately 800×240 px at 10:3, with transparent padding around the mark.
+- Prefer SVG. If raster artwork is required, use a transparent PNG or WebP at 2× the intended display size; individual marks should generally fit within 240×64 px on the page.
+- Keep logos visually balanced by using similar canvas proportions. Missing logos fall back to the item name.
+
+Stats Bar is a full-width row of measurable outcomes. Add Statistic widgets; values and labels are optional independently, and the remaining items are distributed evenly across the row.
+
+Stats guidance:
+
+- No image or video is required.
+- Keep values short, such as `94%`, `3.4×`, or `50+`, and use a concise supporting label.
+
+### 6.8 Score criterion
 
 **Technical component:** `criteria_item`
 
 - Criterion label.
 - Numeric score.
 
-### 6.8 Feedback point
+### 6.9 Feedback point
 
 **Technical component:** `feedback_item`
 
@@ -414,7 +454,7 @@ Use Featured sparingly so the page retains a clear hierarchy.
 - Feedback text.
 - Tone, such as success or warning.
 
-### 6.9 Navigation link
+### 6.10 Navigation link
 
 **Technical component:** `nav_item`
 
@@ -429,7 +469,7 @@ Existing flat Dropdown links remain supported and render as one untitled column,
 
 An item without Dropdown links behaves as a standard navigation link and is hidden when its destination is missing.
 
-### 6.10 Footer link group, Footer link, and Social link
+### 6.11 Footer link group, Footer link, and Social link
 
 - A Footer link group contains an optional heading and reorderable Footer links.
 - A Footer link contains a label, destination, and optional open-in-new-tab setting.
@@ -508,8 +548,9 @@ Resource Card fields:
 - Optional image, category, description, author name, author image, date, and link label.
 - Title.
 - Optional destination and “open in a new tab” setting.
+- Image display: Fit or Fill. Fit preserves the complete image; Fill uses an edge-to-edge crop.
 
-Recommended card image: 1600×900 px (16:9), WebP or JPG, compressed for web delivery. Recommended author image: 400×400 px (1:1), WebP or JPG. These are recommendations, not upload limits. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
+Recommended card image: 1600×900 px (16:9), WebP or JPG, compressed for web delivery. Recommended author image: 400×400 px (1:1), WebP or JPG. These are recommendations, not upload limits. Fit is recommended for screenshots or artwork containing text. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
 
 ### Customer Result
 

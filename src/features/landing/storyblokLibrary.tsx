@@ -162,6 +162,7 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
       normalized.link_url = normalizeUrl(block.link_url ?? block.action_url ?? block.cta_url ?? block.button_url ?? block.url);
       normalized.layout_variant = block.layout_variant ?? block.layout ?? "standard";
       normalized.presentation = block.presentation ?? block.display_mode ?? "fit";
+      normalized.media_fit = block.media_fit ?? block.image_fit ?? (normalized.presentation === "fill" ? "fill" : "fit");
       normalized.background_style = block.background_style ?? block.background ?? "white";
       break;
     case "teaser":
@@ -193,6 +194,7 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
           ...card,
           link_url: normalizeUrl(card.link_url ?? card.url),
           open_in_new_tab: card.open_in_new_tab ?? card.open_new_tab,
+          media_fit: card.media_fit ?? card.image_fit ?? "fit",
         }),
       );
       break;

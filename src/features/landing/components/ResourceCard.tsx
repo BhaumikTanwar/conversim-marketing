@@ -23,6 +23,7 @@ export interface ResourceCardBlok {
   link_url?: string;
   link_label?: string;
   open_in_new_tab?: boolean;
+  media_fit?: string;
 }
 
 function assetUrl(asset?: StoryblokAsset | string) {
@@ -39,6 +40,8 @@ export default function ResourceCard({ blok }: { blok: ResourceCardBlok }) {
 
   const image = assetUrl(blok.image);
   const authorImage = assetUrl(blok.author_image);
+  const mediaFit = (blok.media_fit || "fit").toLowerCase().replace(/[\s_]+/g, "-");
+  const imageFit = mediaFit === "fill" ? "object-cover" : "object-contain";
   const content = (
     <>
       {image && (
@@ -46,7 +49,7 @@ export default function ResourceCard({ blok }: { blok: ResourceCardBlok }) {
           <img
             src={image}
             alt={assetAlt(blok.image, title)}
-            className="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-[1.025]"
+            className={`aspect-[16/9] w-full bg-slate-50 ${imageFit} transition duration-500 group-hover:scale-[1.025]`}
           />
         </div>
       )}
