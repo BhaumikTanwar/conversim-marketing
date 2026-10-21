@@ -152,8 +152,11 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
       normalized.description = block.description ?? block.body;
       normalized.label = block.label ?? block.category ?? block.topic;
       normalized.info = block.info ?? [block.author ?? block.writer_name, block.date ?? block.published_at, block.read_time ?? block.reading_time].filter(Boolean).join("  ·  ");
-      normalized.link_url = normalizeUrl(block.link_url ?? block.url);
+      normalized.link_label = block.link_label ?? block.action_label ?? block.cta_label ?? block.button_label ?? block.link_text;
+      normalized.link_url = normalizeUrl(block.link_url ?? block.action_url ?? block.cta_url ?? block.button_url ?? block.url);
       normalized.layout_variant = block.layout_variant ?? block.layout ?? "standard";
+      normalized.presentation = block.presentation ?? block.display_mode ?? "fit";
+      normalized.background_style = block.background_style ?? block.background ?? "white";
       break;
     case "teaser":
       normalized.heading = block.heading ?? block.headline;
