@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
+import StatsBar, { type StatsBarBlok } from "./StatsBar";
 
 interface UseCaseItem {
   _uid?: string;
@@ -25,6 +26,7 @@ interface UseCasesBlok {
   heading?: string;
   intro?: string;
   items?: UseCaseItem[];
+  stats_bar?: StatsBarBlok | StatsBarBlok[];
   section_id?: string;
 }
 
@@ -220,6 +222,7 @@ export default function UseCasesSection({
 
   const gridGap = layout === "compact" ? "gap-3" : layout === "wide" ? "gap-6" : "gap-4";
   const gridColumns = layout === "compact" ? "lg:grid-cols-2" : layout === "wide" ? "lg:grid-cols-4" : "lg:grid-cols-3";
+  const statsBar = Array.isArray(blok?.stats_bar) ? blok.stats_bar[0] : blok?.stats_bar;
 
   return (
     <section
@@ -262,6 +265,7 @@ export default function UseCasesSection({
             />
           ))}
         </div>
+        {statsBar && <div className="mt-12 md:mt-16"><StatsBar blok={statsBar} /></div>}
       </div>
     </section>
   );

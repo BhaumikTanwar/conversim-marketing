@@ -21,6 +21,7 @@ import WaitlistSection from "./components/WaitlistSection";
 import LogoStrip from "./components/LogoStrip";
 import TabbedFeatureSection from "./components/TabbedFeatureSection";
 import StatsBar from "./components/StatsBar";
+import CaseStudyGrid from "./components/CaseStudyGrid";
 
 export type StoryblokBlock = Record<string, any>;
 
@@ -41,6 +42,7 @@ const sectionIds: Record<string, string> = {
   logo_strip: "logo-strip",
   tabbed_feature: "tabbed-feature",
   stats_bar: "stats",
+  case_study_grid: "case-studies",
 };
 
 const sectionComponents = new Set(Object.keys(sectionIds));
@@ -230,6 +232,13 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
       break;
     case "stats_bar":
       break;
+    case "case_study_grid":
+      normalized.cards = (Array.isArray(block.cards) ? block.cards : []).map((card: StoryblokBlock) => ({
+        ...card,
+        action_url: normalizeUrl(card.action_url ?? card.link_url ?? card.url),
+        stats: Array.isArray(card.stats) ? card.stats : Array.isArray(card.metrics) ? card.metrics : [],
+      }));
+      break;
     case "preview":
     case "faq":
     case "pricing":
@@ -353,6 +362,7 @@ const renderers: Record<string, ComponentType<{ blok?: any }>> = {
   logo_strip: LogoStrip,
   tabbed_feature: TabbedFeatureSection,
   stats_bar: StatsBar,
+  case_study_grid: CaseStudyGrid,
 };
 
 export function StoryblokSections({ sections }: { sections: StoryblokBlock[] }) {

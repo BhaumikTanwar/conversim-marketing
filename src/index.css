@@ -454,6 +454,27 @@ body::after {
   }
 }
 
+.logo-strip-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(4rem, 1fr);
+}
+.case-study-grid-cards {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  .logo-strip-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .case-study-grid-cards {
+    grid-template-columns: repeat(var(--case-study-columns, 2), minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .logo-strip-grid {
+    grid-template-columns: repeat(var(--logo-grid-columns, 6), minmax(0, 1fr));
+  }
+}
+
 /* ── Typography & interaction polish ── */
 html {
   scroll-behavior: smooth;

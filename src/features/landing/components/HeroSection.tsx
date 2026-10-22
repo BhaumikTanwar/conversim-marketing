@@ -306,15 +306,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             delay: 0.2,
             ease: EASE,
           }}
-          className={`relative w-full ${edgeToEdgeImage ? "hidden lg:absolute lg:inset-y-0 lg:right-0 lg:block lg:w-[58%]" : `aspect-[4/5] max-w-md xl:max-w-lg ${centered ? "lg:mx-auto lg:mt-0" : "hidden lg:block lg:ml-auto lg:mt-10 lg:-translate-x-3"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}`}
+          className={`relative w-full ${edgeToEdgeImage ? "mt-8 aspect-[4/3] lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:aspect-auto lg:w-[58%]" : `mt-8 aspect-[4/5] max-w-md lg:mt-10 xl:max-w-lg ${centered ? "lg:mx-auto lg:mt-0" : "lg:ml-auto lg:-translate-x-3"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}`}
         >
-          <div
-            className={`relative w-full h-full overflow-hidden ${edgeToEdgeImage ? "rounded-none ring-0" : `rounded-[1.75rem] ${hasImageMedia && mediaBlock?.show_border === false ? "ring-0" : "ring-1 ring-slate-900/10"}`} ${hasImageMedia ? "bg-transparent" : "bg-slate-900"}`}
-            style={edgeToEdgeImage ? {
-              maskImage: "linear-gradient(to right, transparent 0%, black 28%, black 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 28%, black 100%)",
-            } : undefined}
-          >
+          <div className={`relative h-full w-full overflow-hidden ${edgeToEdgeImage ? "rounded-none ring-0 lg:[mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]" : `rounded-[1.75rem] ${hasImageMedia && mediaBlock?.show_border === false ? "ring-0" : "ring-1 ring-slate-900/10"}`} ${hasImageMedia ? "bg-transparent" : "bg-slate-900"}`}>
             {hasImageMedia ? (
               <HeroImage value={mediaBlock as HeroImageValue} />
             ) : (

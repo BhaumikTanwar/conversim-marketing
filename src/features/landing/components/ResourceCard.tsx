@@ -34,14 +34,21 @@ function assetAlt(asset: StoryblokAsset | string | undefined, fallback: string) 
   return typeof asset === "object" ? asset.alt || fallback : fallback;
 }
 
+function normalizeMediaFit(value?: string) {
+  const normalized = (value || "fit").toLowerCase().replace(/[\s_]+/g, "-");
+  if (["cover", "fill", "crop"].includes(normalized)) return "cover";
+  if (["natural", "original", "auto", "intrinsic"].includes(normalized)) return "natural";
+  return "contain";
+}
+
 export default function ResourceCard({ blok }: { blok: ResourceCardBlok }) {
   const title = blok.title?.trim();
   if (blok.visible === false || !title) return null;
 
   const image = assetUrl(blok.image);
   const authorImage = assetUrl(blok.author_image);
-  const mediaFit = (blok.media_fit || "fit").toLowerCase().replace(/[\s_]+/g, "-");
-  const imageFit = mediaFit === "fill" ? "object-cover" : "object-contain";
+  const mediaFit = normalizeMediaFit(blok.media_fit);
+  const imageFit = mediaFit === "cover" ? "object-cover" : "object-contain";
   const content = (
     <>
       {image && (
@@ -49,7 +56,7 @@ export default function ResourceCard({ blok }: { blok: ResourceCardBlok }) {
           <img
             src={image}
             alt={assetAlt(blok.image, title)}
-            className={`aspect-[16/9] w-full bg-slate-50 ${imageFit} transition duration-500 group-hover:scale-[1.025]`}
+            className={`${mediaFit === "natural" ? "h-auto" : "aspect-[16/9]"} w-full bg-slate-50 ${imageFit} transition duration-500 group-hover:scale-[1.025]`}
           />
         </div>
       )}

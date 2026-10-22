@@ -384,7 +384,7 @@ export default function Header({ blok }: HeaderProps) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.22, ease: EASE }}
-            className="overflow-hidden border-t border-slate-200 bg-white md:hidden"
+            className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-slate-200 bg-white md:hidden"
           >
             <div className="mx-auto max-w-[1280px] space-y-1 px-4 py-4 sm:px-6">
               {navigationItems.map((item, index) => {

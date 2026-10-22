@@ -169,6 +169,7 @@ Fields:
 - Heading.
 - Introduction.
 - Reorderable Use case cards.
+- Optional Stats bar, displayed beneath the use case cards. Add it only when the section needs a proof point or outcome summary.
 
 Compact reduces spacing and uses a denser grid. Wide increases container width and supports four-column layouts on large screens.
 
@@ -371,7 +372,7 @@ This is a general-purpose card. It is not tied to blogs, products, people, or pr
 | Action label | `link_label` | Optional action text. Defaults to “Learn more” only when a destination exists. |
 | Action destination | `link_url` | Optional internal or external link. |
 | Image | `image` | Optional card image. |
-| Image display | `media_fit` | Fit shows the complete image without cropping; Fill crops to fill the media frame. Fit is recommended for screenshots and designs. |
+| Image display | `media_fit` | Fit/Contain shows the complete image in a controlled frame; Fill/Cover crops to fill the frame; Natural preserves the source aspect ratio without cropping. |
 | Card layout | `layout_variant` | Standard, Compact, Wide, Media left, or Media right. |
 | Icon | `icon` | Optional Material Symbols icon used when there is no image. |
 
@@ -380,7 +381,7 @@ The editor exposes one title field. The renderer still tolerates the older `name
 Media guidance:
 
 - Recommended image: 1600×900 px at 16:9. This is the source recommendation, not a crop requirement.
-- Image display: Fit is the default and preserves the full image with letterboxing when its aspect ratio differs from the card frame. Use Fill only when edge-to-edge cropping is intentional.
+- Image display: Fit is the default and preserves the full image with letterboxing when its aspect ratio differs from the card frame. Use Fill when intentional cropping is acceptable, or Natural when the source artwork should determine the image height.
 - Use JPG, WebP, PNG, or AVIF.
 - Aim for less than 1 MB where practical.
 - If no image or icon is supplied, no empty media placeholder is rendered.
