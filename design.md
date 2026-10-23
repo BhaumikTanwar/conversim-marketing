@@ -223,13 +223,13 @@ Media guidance:
 
 **Technical component:** `tabbed_feature`
 
-Use for a set of related capabilities, proof points, or workflow stages where visitors should switch between panels without leaving the page. Add existing Content Card widgets as tabs.
+Use for a set of related capabilities, proof points, or workflow stages where visitors should switch between panels without leaving the page.
 
 Fields:
 
 - Optional eyebrow, heading, and introduction.
 - Background: White, Soft, or Dark.
-- Reorderable tabs. Each tab can provide a label, title, description, image, and optional action.
+- Reorderable tabs. Each tab can provide an eyebrow/label, title, description, image, and optional action.
 
 Media guidance:
 
@@ -251,7 +251,7 @@ Fields:
 - Highlighted words.
 - Card heading.
 - Card description.
-- Optional Button or link.
+- Up to two optional Button or link widgets. Each action is rendered only when its label and destination are complete.
 
 The action uses the reusable button's label, destination, icon, and style.
 
@@ -330,6 +330,88 @@ Fields:
 - Background style.
 - Section ID.
 
+### 5.12 Case-study grid
+
+**Technical component:** `case_study_grid`
+
+Use for a repeatable set of customer stories or outcome cards. The grid is independent from the general Content Card grid because each case-study card has its own media, dark/light card surface, metrics, and story action.
+
+Fields:
+
+- Visible.
+- Optional eyebrow, heading, and description.
+- Section background color.
+- Card background color.
+- Columns: 1–4; defaults to 2.
+- Optional rows limit.
+- Optional Section ID.
+- Reorderable Case Study cards.
+
+Each Case Study card supports:
+
+- Image or video-style media.
+- Optional company/name label.
+- Title, description, and action label/destination.
+- Reorderable metrics, each with a value and label.
+- Optional visibility.
+
+Cards automatically fill the configured grid. On smaller screens they collapse to one column. Recommended case-study image: 1600×900 px (16:9), WebP/JPG, compressed for web delivery. Use `cover` when the image is intended to fill the media frame; use a source with the important subject near the center.
+
+### 5.13 Logo strip
+
+**Technical component:** `logo_strip`
+
+Use for customer, partner, integration, or trust logos. Items are distributed across the available content width; they do not cluster at the left when only a few logos are present.
+
+Fields:
+
+- Visible.
+- Optional eyebrow.
+- Optional custom background color.
+- Background style: White, Soft, Transparent, or Dark.
+- Display mode: Strip or Grid/Logo grid/Matrix.
+- Grid columns: 2–8 when using grid mode; defaults to 6.
+- Optional grid rows: 1–8.
+- Optional Section ID.
+- Reorderable Logo Items.
+
+Each Logo Item supports an uploaded logo or text name and an optional destination. Recommended logo canvas: approximately 800×240 px (10:3), preferably SVG; raster fallback should be a transparent PNG/WebP at 2× display size. Keep the mark visually balanced within roughly 240×64 px.
+
+### 5.14 Stats bar
+
+**Technical component:** `stats_bar`
+
+Use for a full-width row of measurable outcomes. Items are evenly distributed across the available width regardless of how many are present.
+
+Fields:
+
+- Visible.
+- Background style: White, Soft, or Dark.
+- Optional custom Section ID.
+- Reorderable Statistic Items.
+
+Each Statistic contains a short value and supporting label. Recommended values are `94%`, `3.4×`, or `50+`; no media is required. On mobile, statistics remain readable in a compact multi-column row and wrap when needed.
+
+### 5.15 Customer result
+
+**Technical component:** `customer_result`
+
+Use for a single customer proof point, outcome summary, or compact case-study callout.
+
+Fields:
+
+- Visible.
+- Optional eyebrow, company name, and company logo.
+- Heading and description.
+- Reorderable metrics.
+- Optional action label and destination.
+- Optional open-in-new-tab setting.
+- Layout: Default, Wide, or Compact.
+- Background: White, Soft, or Brand.
+- Optional Section ID.
+
+The logo, metrics, and action are independent optional groups. Recommended logo: SVG or transparent PNG/WebP on an approximately 800×240 px canvas.
+
 ## 6. Nested widgets
 
 Nested widgets belong inside page sections. They should not normally be inserted directly into the page body.
@@ -385,6 +467,7 @@ Media guidance:
 - Use JPG, WebP, PNG, or AVIF.
 - Aim for less than 1 MB where practical.
 - If no image or icon is supplied, no empty media placeholder is rendered.
+- Optional nested Content Cards. Each nested item supports a title, description, optional image, and optional action. Empty nested items are ignored.
 
 ### 6.3 Use case card
 
@@ -421,19 +504,19 @@ Use Featured sparingly so the page retains a clear hierarchy.
 - Value, such as `94%` or `50+`.
 - Label explaining the value.
 
-### 6.7 Logo Strip and Stats Bar
+### 6.7 Logo Item and Statistic
 
-**Technical components:** `logo_strip`, `stats_bar`
+**Technical components:** `logo_item`, `stat_item`
 
-Logo Strip is a full-width trust, customer, partner, or integration row. Add Logo Item widgets; each item may contain an uploaded logo or a text name and an optional destination. Items are distributed across the available width, so a short list does not cluster at the left edge.
+These widgets are nested inside Logo Strip and Stats Bar sections. They should not normally be added directly to the page body.
+
+Logo Item may contain an uploaded logo or a text name and an optional destination.
 
 Media guidance for Logo Item:
 
 - Recommended logo canvas: approximately 800×240 px at 10:3, with transparent padding around the mark.
 - Prefer SVG. If raster artwork is required, use a transparent PNG or WebP at 2× the intended display size; individual marks should generally fit within 240×64 px on the page.
 - Keep logos visually balanced by using similar canvas proportions. Missing logos fall back to the item name.
-
-Stats Bar is a full-width row of measurable outcomes. Add Statistic widgets; values and labels are optional independently, and the remaining items are distributed evenly across the row.
 
 Stats guidance:
 
@@ -553,25 +636,6 @@ Resource Card fields:
 
 Recommended card image: 1600×900 px (16:9), WebP or JPG, compressed for web delivery. Recommended author image: 400×400 px (1:1), WebP or JPG. These are recommendations, not upload limits. Fit is recommended for screenshots or artwork containing text. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
 
-### Customer Result
-
-**Technical component:** `customer_result`
-
-Use this for customer proof, outcome summaries, partnership results, or a compact case-study callout. It is not limited to case studies.
-
-Fields:
-
-- Optional eyebrow, company name, and company logo.
-- Heading and description.
-- Optional Results built from Statistic widgets, for example `60%` / `Faster ramp`.
-- Optional action label and destination. The button appears only when both are supplied.
-- Optional “open in a new tab” setting.
-- Layout: `default`, `wide`, or `compact`.
-- Background: `white`, `soft`, or `brand`.
-- Optional Section ID.
-
-Recommended logo: SVG where available, otherwise a transparent PNG/WebP on an approximately 800×240 px artboard. Metrics, logo, company name, and action are independent optional groups; omitting any of them does not leave blank space.
-
 ## 8. Section IDs and navigation
 
 Every rendered section receives an ID. Standard automatic IDs include:
@@ -589,6 +653,10 @@ Every rendered section receives an ID. Standard automatic IDs include:
 - `content-filter`
 - `resources`
 - `customer-result`
+- `logo-strip`
+- `stats`
+- `tabbed-feature`
+- `case-studies`
 
 Repeated sections receive numbered IDs such as `pricing-2`. Where a section exposes a Section ID field, the editor may provide a custom ID. Invalid characters are converted to hyphens, and duplicate IDs receive a numeric suffix.
 
@@ -642,6 +710,7 @@ Before publishing a page, verify:
 - The story slug matches the intended URL.
 - Header and Footer links point to valid destinations.
 - Buttons have both a label and destination.
+- A Call to Action section may contain one or two Button or link widgets; each is rendered only when its label and destination are complete.
 - Section anchors scroll to the correct section.
 - Headings follow a logical hierarchy.
 - Optional empty fields leave no visible gaps.

@@ -158,7 +158,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
     <section
       {...(blok ? storyblokEditable(blok) : {})}
       id={blok?.section_id}
-      className={`relative flex items-center ${edgeToEdgeImage ? "min-h-[min(760px,calc(100dvh-5rem))] py-14 lg:py-0 lg:pr-0" : showVideo ? "min-h-[calc(100dvh-5rem)] py-14 md:py-20" : compactTextHero ? "py-10 md:py-14" : "py-14 md:py-18"} px-4 sm:px-6 lg:px-8 overflow-hidden aurora-bg`}
+      className={`relative flex items-center ${edgeToEdgeImage ? "min-h-[min(760px,calc(100dvh-5rem))] py-14 lg:py-0 lg:pr-0" : showVideo ? "min-h-[calc(100dvh-5rem)] py-14 md:py-20" : compactTextHero ? "py-10 md:py-14" : "py-12 md:py-16 lg:py-20"} px-4 sm:px-6 lg:px-8 overflow-hidden aurora-bg`}
     >
       <div
         className="pointer-events-none absolute inset-0 hero-dot-grid"
@@ -170,8 +170,8 @@ export default function HeroSection({ blok }: HeroSectionProps) {
         aria-hidden
       />
 
-      <div className={`${edgeToEdgeImage ? "max-w-none mx-0 lg:min-h-[min(760px,calc(100dvh-5rem))] lg:grid-cols-1 lg:gap-0" : "max-w-[1280px] 2xl:max-w-[1440px] mx-auto"} grid ${!showMedia || centered || edgeToEdgeImage ? "lg:grid-cols-1" : mediaRight ? "lg:grid-cols-2" : "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"} gap-12 lg:gap-20 items-center w-full relative z-10`}>
-        <div className={`flex flex-col ${compactTextHero ? "gap-4 md:gap-5" : "gap-7 md:gap-9"} ${(!showVideo && !edgeToEdgeImage || centered) ? "items-center text-center" : ""} ${edgeToEdgeImage ? "relative z-10 lg:max-w-[52%]" : ""} ${mediaLeft ? "lg:order-2" : "lg:order-1"}`}>
+      <div className={`${edgeToEdgeImage ? "max-w-none mx-0 lg:min-h-[min(760px,calc(100dvh-5rem))] lg:grid-cols-1 lg:gap-0" : "max-w-[1280px] 2xl:max-w-[1440px] mx-auto"} grid ${!showMedia || centered || edgeToEdgeImage ? "lg:grid-cols-1" : mediaRight ? "lg:grid-cols-[minmax(0,1fr)_minmax(390px,0.9fr)]" : "lg:grid-cols-[minmax(390px,0.9fr)_minmax(0,1fr)]"} gap-10 lg:gap-16 items-center w-full relative z-10`}>
+        <div className={`flex flex-col ${compactTextHero ? "gap-4 md:gap-5" : "gap-6 md:gap-7"} ${centered || (!showMedia && !edgeToEdgeImage) ? "items-center text-center" : "items-start text-left"} ${edgeToEdgeImage ? "relative z-10 lg:max-w-[52%]" : ""} ${mediaLeft ? "lg:order-2" : "lg:order-1"}`}>
           {eyebrow && <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,7 +180,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.04,
               ease: EASE,
             }}
-            className="flex items-center gap-2 text-sm font-medium text-brand"
+            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-brand sm:text-sm"
           >
             <span
               className="h-2 w-2 rounded-full bg-brand flex-shrink-0"
@@ -198,7 +198,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.08,
               ease: EASE,
             }}
-            className={`${compactTextHero ? "text-3xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-5xl lg:text-6xl"} font-semibold text-slate-900 leading-[1.04] tracking-tight`}
+            className={`${compactTextHero ? "text-3xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-5xl lg:text-[3.35rem]"} ${centered ? "max-w-[16ch]" : "max-w-[12ch]"} font-semibold text-slate-900 leading-[1.04] tracking-tight`}
           >
             {heading}
             {heading && highlightedHeading && <br />}
@@ -235,9 +235,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
               delay: 0.24,
               ease: EASE,
             }}
-            className={`flex flex-col ${compactTextHero ? "gap-5" : "gap-7"} ${(!showVideo && !edgeToEdgeImage) || centered ? "items-center" : ""}`}
+              className={`flex flex-col ${compactTextHero ? "gap-5" : "gap-6"} ${centered || (!showMedia && !edgeToEdgeImage) ? "items-center" : "items-start"}`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               {hasPrimaryCta && (
                 <StoryblokCta
                   value={{
@@ -245,7 +245,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
                     label: primaryCta.label || (!blok ? "Get started" : ""),
                     url: primaryCta.url || (!blok ? "/login" : ""),
                   }}
-                  className="px-7 py-4 text-base"
+                  className="px-6 py-3.5 text-sm"
                 />
               )}
 
@@ -257,7 +257,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
                     url: secondaryCta.url || (!blok ? "#preview" : ""),
                     style: secondaryCta.style || secondaryCta.variant || "secondary",
                   }}
-                  className="px-7 py-4 text-base"
+                  className="px-6 py-3.5 text-sm"
                 />
               )}
             </div>
@@ -306,9 +306,9 @@ export default function HeroSection({ blok }: HeroSectionProps) {
             delay: 0.2,
             ease: EASE,
           }}
-          className={`relative w-full ${edgeToEdgeImage ? "mt-8 aspect-[4/3] lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:aspect-auto lg:w-[58%]" : `mt-8 aspect-[4/5] max-w-md lg:mt-10 xl:max-w-lg ${centered ? "lg:mx-auto lg:mt-0" : "lg:ml-auto lg:-translate-x-3"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}`}
+          className={`relative w-full ${edgeToEdgeImage ? "mt-8 aspect-[4/3] lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:aspect-auto lg:w-[58%]" : `mt-8 ${hasImageMedia ? "aspect-[4/3] max-w-[34rem]" : "aspect-[4/5] max-w-md xl:max-w-lg"} lg:mt-0 ${centered ? "lg:mx-auto" : "lg:ml-auto"} ${mediaLeft ? "lg:order-1" : "lg:order-2"}`}`}
         >
-          <div className={`relative h-full w-full overflow-hidden ${edgeToEdgeImage ? "rounded-none ring-0 lg:[mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]" : `rounded-[1.75rem] ${hasImageMedia && mediaBlock?.show_border === false ? "ring-0" : "ring-1 ring-slate-900/10"}`} ${hasImageMedia ? "bg-transparent" : "bg-slate-900"}`}>
+          <div className={`relative h-full w-full overflow-hidden ${edgeToEdgeImage ? "rounded-none ring-0 lg:[mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]" : `rounded-2xl ${hasImageMedia && mediaBlock?.show_border === false ? "ring-0" : "ring-1 ring-slate-900/10"}`} ${hasImageMedia ? "bg-transparent" : "bg-slate-900"}`}>
             {hasImageMedia ? (
               <HeroImage value={mediaBlock as HeroImageValue} />
             ) : (
