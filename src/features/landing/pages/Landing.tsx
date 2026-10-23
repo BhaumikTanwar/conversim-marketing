@@ -9,9 +9,11 @@ import {
 } from "../storyblokLibrary";
 
 export default function Landing() {
+  const version = import.meta.env.DEV ? "draft" : "published";
   const story = useStoryblok("home", {
-    version: import.meta.env.DEV ? "draft" : "published",
+    version,
   });
+  const sharedChrome = useStoryblok("global/site-settings", { version });
   usePageMeta("/", {
     title: story?.content?.seo_title || "Conversim | AI Roleplay Voice Training for Sales & Customer Conversations",
     description: story?.content?.seo_description || undefined,
@@ -19,7 +21,7 @@ export default function Landing() {
     noIndex: Boolean(story?.content?.no_index ?? story?.content?.noindex),
   });
 
-  const page = normalizeStoryblokPage(story?.content);
+  const page = normalizeStoryblokPage(story?.content, sharedChrome?.content);
 
   return (
     <>

@@ -1,4 +1,5 @@
 import { marketingHref } from "../../../lib/env";
+import { resolveMaterialIcon } from "../materialIcons";
 
 export interface StoryblokCtaValue {
   label?: string;
@@ -57,7 +58,7 @@ export default function StoryblokCta({
     >
       {icon && (
         <span className="material-symbols-outlined text-lg" aria-hidden="true">
-          {icon}
+          {resolveMaterialIcon(icon, "arrow_forward")}
         </span>
       )}
       {label}

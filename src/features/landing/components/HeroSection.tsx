@@ -34,6 +34,10 @@ interface HeroMediaBlock {
   loop?: boolean;
   show_controls?: boolean;
   live_label?: string;
+  feedback_label?: string;
+  score_label?: string;
+  score?: string | number;
+  criteria?: HeroCriterion[];
   image?: HeroImageValue["image"];
   image_url?: string;
   alt_text?: string;
@@ -112,8 +116,11 @@ export default function HeroSection({ blok }: HeroSectionProps) {
       !blok,
   );
 
-  const hasScore = blok ? blok.score !== undefined && blok.score !== "" : true;
-  const score = Number(blok?.score ?? 78);
+  const mediaBlock = Array.isArray(blok?.media) ? blok.media.find(Boolean) : blok?.media;
+  const hasScore = mediaBlock?.score !== undefined && mediaBlock?.score !== ""
+    ? true
+    : blok ? blok.score !== undefined && blok.score !== "" : true;
+  const score = Number(mediaBlock?.score ?? blok?.score ?? 78);
 
   const stats: HeroStat[] = blok
     ? (blok.stats ?? []).filter((stat) => stat.value || stat.label)
@@ -124,7 +131,7 @@ export default function HeroSection({ blok }: HeroSectionProps) {
       ];
 
   const criteria: HeroCriterion[] = blok
-    ? (blok.criteria ?? []).filter((criterion) => criterion.label || criterion.score !== undefined)
+    ? (mediaBlock?.criteria ?? blok.criteria ?? []).filter((criterion) => criterion.label || criterion.score !== undefined)
     : [
         { label: "Empathy", score: 86 },
         { label: "Objection handling", score: 72 },
@@ -138,7 +145,6 @@ export default function HeroSection({ blok }: HeroSectionProps) {
     ? blok.video_poster
     : blok?.video_poster?.filename || blok?.video_poster?.url;
 
-  const mediaBlock = Array.isArray(blok?.media) ? blok.media.find(Boolean) : blok?.media;
   const mediaType = mediaBlock?.component;
   const hasImageMedia = mediaType === "hero_image" && Boolean(mediaBlock?.image || mediaBlock?.image_url);
   const hasVideoMedia = mediaType === "hero_video" && Boolean(mediaBlock?.video || mediaBlock?.video_url);
@@ -151,8 +157,8 @@ export default function HeroSection({ blok }: HeroSectionProps) {
   const liveLabel = blok
     ? (mediaBlock?.live_label ?? blok.live_label)?.trim()
     : "Live session";
-  const feedbackLabel = blok ? blok.feedback_label?.trim() : "Good empathy shown";
-  const scoreLabel = blok ? blok.score_label?.trim() : "Live score";
+  const feedbackLabel = blok ? (mediaBlock?.feedback_label ?? blok.feedback_label)?.trim() : "Good empathy shown";
+  const scoreLabel = blok ? (mediaBlock?.score_label ?? blok.score_label)?.trim() : "Live score";
 
   return (
     <section

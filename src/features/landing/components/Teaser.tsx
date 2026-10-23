@@ -1,5 +1,6 @@
 import { storyblokEditable } from "@storyblok/react";
 import { marketingHref } from "../../../lib/env";
+import { resolveMaterialIcon } from "../materialIcons";
 
 interface TeaserBlok {
   _uid?: string;
@@ -38,7 +39,7 @@ export default function Teaser({ blok }: { blok?: TeaserBlok }) {
         <div className={`${centered ? "" : "md:flex md:items-center md:justify-between md:gap-8"}`}>
           <div className={`${centered ? "mx-auto" : ""} max-w-3xl`}>
             <div className={`flex items-start gap-4 ${centered ? "justify-center" : ""}`}>
-              {blok.icon && <span className="material-symbols-outlined mt-0.5 text-2xl text-blue-500" aria-hidden="true">{blok.icon}</span>}
+              {blok.icon && <span className="material-symbols-outlined mt-0.5 text-2xl text-blue-500" aria-hidden="true">{resolveMaterialIcon(blok.icon)}</span>}
               <div>
                 <h2 className="text-xl font-semibold leading-tight tracking-tight md:text-2xl">{heading}</h2>
                 {blok.description && <p className={`mt-2 text-sm leading-relaxed md:text-base ${supportingClass}`}>{blok.description}</p>}

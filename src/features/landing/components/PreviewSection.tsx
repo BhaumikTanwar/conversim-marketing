@@ -4,6 +4,7 @@ import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import LazyVideo from "../../../shared/components/LazyVideo";
 import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
+import { resolveMaterialIcon } from "../materialIcons";
 
 interface PreviewFeedbackItem {
   _uid?: string;
@@ -177,7 +178,7 @@ export default function PreviewSection({ blok }: PreviewSectionProps) {
                         <span
                           className={`material-symbols-outlined ${tone} text-base mt-0.5`}
                         >
-                          {item.icon || "check_circle"}
+                          {resolveMaterialIcon(item.icon, item.tone === "warning" ? "warning" : "check_circle")}
                         </span>
 
                         <span className="text-slate-600 leading-relaxed">

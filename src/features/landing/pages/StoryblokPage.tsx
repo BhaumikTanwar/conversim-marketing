@@ -1,6 +1,6 @@
 /* Storyblok blocks have different schemas, matching the existing landing renderer. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useStoryblokApi, useStoryblokState } from "@storyblok/react";
+import { useStoryblok, useStoryblokApi, useStoryblokState } from "@storyblok/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
@@ -17,7 +17,14 @@ import { usePageMeta } from "../../../shared/hooks/usePageMeta";
 export default function StoryblokPage() {
   const { pathname, hash } = useLocation();
   const slug = pathname.replace(/^\/+|\/+$/g, "");
+  // Site Settings is configuration, not a public page. Preview it in the homepage context so
+  // editors can see shared chrome without the catch-all route treating it as a missing page.
+  const previewSlug = slug === "global/site-settings" ? "home" : slug;
+  const isSharedSettingsPreview = slug === "global/site-settings";
   const isDevelopmentPreview = import.meta.env.DEV;
+  const sharedChromeStory = useStoryblok("global/site-settings", {
+    version: isDevelopmentPreview ? "draft" : "published",
+  });
   const storyblokApi = useStoryblokApi();
   const [result, setResult] = useState<{
     slug: string;
@@ -26,7 +33,7 @@ export default function StoryblokPage() {
     fetchError: string | null;
   }>({ slug: "", story: null, notFound: false, fetchError: null });
   const story = useStoryblokState<any>(result.story);
-  const page = story ? normalizeStoryblokPage(story.content) : null;
+  const page = story ? normalizeStoryblokPage(story.content, sharedChromeStory?.content) : null;
   const notFound = result.slug === slug && !result.fetchError && (!page || page.sections.length === 0);
   const seoContent = notFound ? undefined : story?.content;
   // The SPA rewrite answers every URL with a 200, so the 404 and error views must keep themselves out of the index.
@@ -34,14 +41,14 @@ export default function StoryblokPage() {
     title: seoContent.seo_title || story?.name,
     description: seoContent.seo_description || "",
     image: seoContent.og_image?.filename || seoContent.og_image?.url,
-    noIndex: Boolean(seoContent.no_index ?? seoContent.noindex),
+    noIndex: isSharedSettingsPreview || Boolean(seoContent.no_index ?? seoContent.noindex),
   } : undefined);
 
   useEffect(() => {
     let cancelled = false;
 
     storyblokApi
-      ?.get(`cdn/stories/${slug}`, {
+      ?.get(`cdn/stories/${previewSlug}`, {
         version: isDevelopmentPreview ? "draft" : "published",
       })
       .then(({ data }: any) => {
@@ -68,7 +75,7 @@ export default function StoryblokPage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, storyblokApi, isDevelopmentPreview]);
+  }, [slug, previewSlug, storyblokApi, isDevelopmentPreview]);
 
   useEffect(() => {
     if (!story || !hash) return;

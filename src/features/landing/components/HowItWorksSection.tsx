@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
+import { resolveMaterialIcon } from "../materialIcons";
 
 interface HowItWorksStep {
   _uid?: string;
@@ -123,7 +124,7 @@ export default function HowItWorksSection({
                       className="material-symbols-outlined text-2xl"
                       aria-hidden="true"
                     >
-                      {step.icon}
+                      {resolveMaterialIcon(step.icon)}
                     </span>
                   </span>}
 

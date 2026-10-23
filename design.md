@@ -109,11 +109,15 @@ The fixed Header is 64 px on small screens and 80 px on medium screens and above
 | SEO description | `seo_description` | Optional summary for search previews. |
 | Social sharing image | `og_image` | Optional Open Graph image. Recommended 1200×630 px. |
 | Hide from search engines | `noindex` | Adds no-index metadata when enabled. Use only when intentional. |
-| Site Header | `header` | Optional single Header block. |
+| Site Header | `header` | Legacy per-page Header block. Shared Site Settings take precedence when configured. |
 | Page sections | `body` | Reorderable reusable sections. |
-| Site Footer | `footer` | Optional single Footer block. |
+| Site Footer | `footer` | Legacy per-page Footer block. Shared Site Settings take precedence when configured. |
 
 The section order in Storyblok is the rendered page order.
+
+### Shared Site Settings
+
+To edit the Header and Footer once for every page, create a Storyblok content type named **Site Settings** (`site_settings`) and a single story at `global/site-settings`. Add two **Blocks** fields: `header` restricted to one `header` block, and `footer` restricted to one `footer` block. Populate and publish both blocks there. The React site loads this story on the homepage and CMS pages; its Header/Footer override the legacy per-page fields. Existing page-level blocks remain as a fallback until the shared story is published. Do not add this settings story to the website page `body`.
 
 ## 5. Page sections
 
@@ -133,11 +137,8 @@ Content fields:
 - Description.
 - Primary action.
 - Secondary action.
-- Video URL.
-- Video poster image.
-- Live label.
-- Feedback label.
-- Score and score criteria.
+- Optional Hero Media block: choose Hero Image or Hero Video. The field only allows these two rendered media components; add only settings relevant to the selected type.
+- Video URL, poster, playback controls, live/feedback labels, score and score criteria belong inside Hero Video. They are no longer general Hero fields.
 - Statistics.
 - Visible.
 
@@ -151,10 +152,12 @@ Behavior:
 
 Media guidance:
 
-- Video: MP4 or WebM, portrait 4:5 preferred, approximately 1080×1350 px, compressed for web.
-- Hero image: 1600×1200 px minimum at 4:3 for split layouts; 1920×1080 px at 16:9 also works for wide media. Use transparent PNG/WebP when the artwork should sit on the section background.
-- Poster: match the video ratio and crop; JPG, WebP, or AVIF.
+- Hero Video: MP4 or WebM, approximately 1080×1350 px (4:5), compressed for web. It is contained in a portrait frame.
+- Hero Image: at least 1600×1200 px (4:3) for split layouts; use 1920×1080 px (16:9) for wide/edge-to-edge art. Cover crops edges; Contain preserves all pixels; Edge-to-edge fills the wide desktop frame and crops. Keep key subjects centered for mobile.
+- Video poster: match the video aspect ratio and crop; JPG, WebP, or AVIF. Use the same 4:5 framing as the Hero Video.
 - Poster and video recommendations are guidance, not Storyblok upload limits.
+
+The schema retains backward-compatible rendering for older stories that still contain the former top-level video fields. New edits should use Hero Media.
 
 ### 5.2 Use cases section
 
@@ -229,11 +232,11 @@ Fields:
 
 - Optional eyebrow, heading, and introduction.
 - Background: White, Soft, or Dark.
-- Reorderable tabs. Each tab can provide an eyebrow/label, title, description, image, and optional action.
+- Reorderable Content Cards. Each tab can provide an eyebrow/label, title, description, supporting details, image, and optional action. Only Content Card blocks are allowed.
 
 Media guidance:
 
-- Tab image: approximately 1600×1000 px at 8:5, or 1600×900 px at 16:9 when the source is a product screenshot or video still.
+- Tab image: approximately 1600×1000 px at 8:5, or 1600×900 px at 16:9 for product screenshots/video stills. The renderer uses Contain, so images are never cropped; mobile shows a shorter panel and may leave space around the image.
 - Use PNG/WebP for interface screenshots and JPG/WebP for photographic artwork. Keep important UI text large enough to remain legible on mobile.
 - If a tab has no image, the panel renders a styled fallback area and does not leave a broken image element.
 
@@ -325,7 +328,7 @@ Fields:
 - Heading.
 - Description.
 - Action label and destination.
-- Optional icon.
+- Optional Material Symbols icon; choose a supported icon name from the icon guidance below (for example `handshake`).
 - Layout.
 - Background style.
 - Section ID.
@@ -375,7 +378,7 @@ Fields:
 - Optional Section ID.
 - Reorderable Logo Items.
 
-Each Logo Item supports an uploaded logo or text name and an optional destination. Recommended logo canvas: approximately 800×240 px (10:3), preferably SVG; raster fallback should be a transparent PNG/WebP at 2× display size. Keep the mark visually balanced within roughly 240×64 px.
+Each Logo Item supports an uploaded logo or text name and an optional destination. Recommended logo canvas: approximately 800×240 px (10:3), preferably SVG; raster fallback should be a transparent PNG/WebP at 2× display size. Logos are contained (never cropped), displayed up to about 240×64 px in strip mode or 200×40 px in grid mode. Aim for under 300 KB per raster logo.
 
 ### 5.14 Stats bar
 
@@ -410,7 +413,7 @@ Fields:
 - Background: White, Soft, or Brand.
 - Optional Section ID.
 
-The logo, metrics, and action are independent optional groups. Recommended logo: SVG or transparent PNG/WebP on an approximately 800×240 px canvas.
+The logo, metrics, and action are independent optional groups. Recommended logo: SVG or transparent PNG/WebP on an approximately 800×240 px canvas (10:3); it is contained in a 256×128 px frame. Aim for under 500 KB.
 
 ## 6. Nested widgets
 
@@ -448,11 +451,10 @@ This is a general-purpose card. It is not tied to blogs, products, people, or pr
 | Eyebrow label | `category` | Optional small label above the title. |
 | Title | `title` | Main card title. Cards without a title are ignored in grids. |
 | Description | `description` | Optional supporting text. |
-| Supporting detail 1 | `author` | Optional short metadata of any kind. |
-| Supporting detail 2 | `date` | Optional short metadata of any kind. |
-| Supporting detail 3 | `read_time` | Optional short metadata of any kind. |
+| Supporting details | `supporting_details` | Optional plain text; put one item on each line. Rendered as a short bullet list under the description. Older `author`, `date`, and `read_time` values remain supported as fallback metadata. |
 | Action label | `link_label` | Optional action text. Defaults to “Learn more” only when a destination exists. |
 | Action destination | `link_url` | Optional internal or external link. |
+| Action icon | `action_icon` | Optional Material Symbols name shown after the action label. Defaults to `arrow_forward`; supported values include `east`, `north_east`, and `open_in_new`. |
 | Image | `image` | Optional card image. |
 | Image display | `media_fit` | Fit/Contain shows the complete image in a controlled frame; Fill/Cover crops to fill the frame; Natural preserves the source aspect ratio without cropping. |
 | Card layout | `layout_variant` | Standard, Compact, Wide, Media left, or Media right. |
@@ -473,7 +475,7 @@ Media guidance:
 
 **Technical component:** `use_case_item`
 
-- Optional icon.
+- Optional Material Symbols icon; choose a supported icon name from the icon guidance below (for example `upload_file`).
 - Optional title.
 - Optional description.
 - Optional supporting detail.
@@ -594,6 +596,8 @@ Fields:
 
 Recommended logo format is SVG or a transparent PNG/WebP at least 320 px wide.
 
+Edit shared Header/Footer content in the `global/site-settings` story. Per-page `header` and `footer` values are retained for backwards compatibility and only appear when the corresponding shared block is absent.
+
 ### Content Filter
 
 **Technical component:** `content_filter`
@@ -634,7 +638,7 @@ Resource Card fields:
 - Optional destination and “open in a new tab” setting.
 - Image display: Fit or Fill. Fit preserves the complete image; Fill uses an edge-to-edge crop.
 
-Recommended card image: 1600×900 px (16:9), WebP or JPG, compressed for web delivery. Recommended author image: 400×400 px (1:1), WebP or JPG. These are recommendations, not upload limits. Fit is recommended for screenshots or artwork containing text. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
+Recommended card image: 1600×900 px (16:9), WebP/JPG/PNG/AVIF, compressed to under 1 MB where practical. Its standard frame is 16:9. Fit contains the full image; Fill covers/crops; Natural preserves the source aspect ratio and may make the card taller. Recommended author image: 400×400 px (1:1), WebP/JPG/PNG, target under 200 KB; it renders as a 32×32 circle and is cropped. These are recommendations, not upload limits. Missing image or metadata is hidden without leaving an empty placeholder. If no destination is provided, the card remains non-clickable.
 
 ## 8. Section IDs and navigation
 
@@ -658,7 +662,7 @@ Every rendered section receives an ID. Standard automatic IDs include:
 - `tabbed-feature`
 - `case-studies`
 
-Repeated sections receive numbered IDs such as `pricing-2`. Where a section exposes a Section ID field, the editor may provide a custom ID. Invalid characters are converted to hyphens, and duplicate IDs receive a numeric suffix.
+Repeated sections receive numbered IDs such as `pricing-2`. Where a section exposes a Section ID field, the editor may provide a custom ID such as `team-coaching` (letters/numbers/hyphens; omit `#`). This is the target identifier, not a link. Put `#team-coaching` in a navigation item's or button's destination to scroll there. Invalid characters are converted to hyphens, and duplicate IDs receive a numeric suffix. Logo Strip's Section ID uses this same mechanism; it is not distinct from a Section Anchor.
 
 Header navigation automatically connects repeated standard section anchors to matching section occurrences in order.
 
@@ -722,7 +726,46 @@ Before publishing a page, verify:
 - No-index is off unless intentionally required.
 - The story has been published for production visibility.
 
-## 12. Implementation source files
+## 12. Icon and media reference
+
+### Supported Storyblok icon identifiers
+
+Icon values are Material Symbols names in lowercase snake_case, never emoji, pasted glyphs, CSS class names, or SVG code. The CMS fields where editors can choose one are Content Card (`icon`, shown only when there is no image), Use Case (`icon`), Process Step (`icon`), CTA Banner (`icon`), Button or link (`icon`), and Product Demo feedback point (`icon`). Use one of: `analytics`, `arrow_forward`, `check_circle`, `forum`, `handshake`, `lightbulb`, `mic`, `rocket_launch`, `settings_accessibility`, `support_agent`, `trending_up`, `upload_file`, `warning`. Examples: a process step can use `upload_file`; a feedback point can use `check_circle` or `warning`. Unsupported legacy values use a generic supported symbol instead of displaying their raw text.
+
+### Media sizing by rendered frame
+
+All dimensions are recommendations from the React/CSS aspect frames, not upload limits. Use WebP or AVIF for photographic images where possible, PNG/WebP for transparent art, SVG for logos, MP4/WebM for video, and keep images under about 1 MB and logos under 300 KB when practical. Compress large videos for mobile delivery or use a hosted video URL. Always preview on desktop and mobile.
+
+| Section or field | Recommended image/video dimensions | Fit and responsive behavior |
+| --- | --- | --- |
+| Hero Image, split | 1600×1200 px, 4:3 | Cover fills and crops; Contain preserves all pixels. Mobile stacks media below copy. |
+| Hero Image, wide/edge-to-edge | 1920×1080 px, 16:9 | Edge-to-edge uses a wide desktop frame and Cover crop; mobile stacks into a 4:3 frame. Keep the subject centered. |
+| Hero Video + poster | 1080×1350 px, 4:5 | Video is contained in a portrait frame; poster should match. MP4/WebM, compressed. |
+| Product Demo video + poster | 1920×1080 px, 16:9 | Contained in a 16:9 player; poster should match the source crop. MP4/WebM, compressed. |
+| Tabbed Feature image | 1600×1000 px, 8:5 (or 1600×900 px for screen captures) | Contain shows the complete image; desktop panel is taller than mobile, which can leave visible panel padding. |
+| Content Card, standard/compact/wide | 1600×900 px, 16:9 | Fit contains, Fill/Cover crops into 16:9, Natural uses intrinsic height. |
+| Content Card, Fill presentation | 1600×900 px, 16:9 | Mobile image sits above text at 16:9; desktop image fills a split region with at least 19rem height. Cover crops; Contain letterboxes. |
+| Content Card, Split presentation | 1600×1200 px, 4:3 | Tall desktop split; on mobile stacks above text. Use Fit to avoid cropping important details. |
+| Nested Content Card image | 1200×675 px, 16:9 | Fixed 16:9 thumbnail with Cover cropping; center important subjects. |
+| Resource Card image | 1600×900 px, 16:9 | 16:9 frame; Fit contains, Fill/Cover crops, Natural preserves intrinsic height. |
+| Resource author image | 400×400 px, 1:1 | Small circular thumbnail cropped with Cover. |
+| Case Study Grid card image | 1600×900 px, 16:9 | Fixed 16:9 frame with Cover cropping at every grid width. Keep logos/faces centered. |
+| Customer Result company logo | 800×240 px, 10:3 | Contained without crop in a bounded logo frame. |
+| Logo Strip item | 800×240 px, 10:3 | Contained without crop; visible mark is limited to about 240×64 px in strip mode or 200×40 px in grid mode. |
+
+Decorative media may use blank alt text. If an image communicates information, write concise alt text and do not put essential copy only inside the image.
+
+## 13. Storyblok and React alignment
+
+`Website page.body` is rendered in story order. The section registry in `src/features/landing/storyblokLibrary.tsx` is the authoritative list of page-level blocks: `hero`, `use_cases`, `how_it_works`, `preview`, `pricing`, `faq`, `waitlist`, `grid`, `feature`, `teaser`, `content_filter`, `resource_grid`, `customer_result`, `logo_strip`, `tabbed_feature`, `stats_bar`, and `case_study_grid`. Blocks such as `cta`, `feature_card_item`, `logo_item`, `criteria_item`, and `faq_item` are nested items, not page sections.
+
+Restrict each Storyblok Blocks field to the component(s) rendered at that location. Confirmed mappings include Hero Media → `hero_image`/`hero_video`, Hero Video criteria → `criteria_item`, and Tabbed Feature tabs → `feature` (Content Card). Keep those restrictions when adding fields or components. A block is not supported merely because it exists in the Block Library.
+
+Supporting Details on Content Card is optional plain text, one item per line. In a standalone Content Card it appears beneath the description as a concise detail list; in Tabbed Feature it appears in the same position. Legacy author/date/read-time metadata remains supported in Tabbed Feature when Supporting Details is empty.
+
+Icons are optional Material Symbols identifiers, not emoji. Use only the supported identifiers listed in Section 12. Unknown legacy values resolve to a safe generic icon instead of appearing as raw text. Prefer the field description and preview when selecting an icon; changing icon fields to dropdowns must preserve these exact stored values for existing stories.
+
+## 14. Implementation source files
 
 - Design tokens: `src/index.css`
 - Shared section sizing: `src/features/landing/sectionStyles.ts`

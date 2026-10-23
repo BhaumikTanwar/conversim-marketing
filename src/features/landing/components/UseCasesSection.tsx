@@ -4,6 +4,7 @@ import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { sectionContainer, sectionHeadingClass, sectionSpacing } from "../sectionStyles";
 import StatsBar, { type StatsBarBlok } from "./StatsBar";
+import { resolveMaterialIcon } from "../materialIcons";
 
 interface UseCaseItem {
   _uid?: string;
@@ -97,7 +98,7 @@ function UseCaseTile({
         }`}
         aria-hidden="true"
       >
-        {useCase.icon}
+        {resolveMaterialIcon(useCase.icon)}
       </span>}
 
       <div

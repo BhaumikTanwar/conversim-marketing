@@ -1,5 +1,6 @@
 import { storyblokEditable } from "@storyblok/react";
 import { marketingHref } from "../../../lib/env";
+import { resolveMaterialIcon } from "../materialIcons";
 
 export interface FeatureBlok {
   _uid?: string;
@@ -11,11 +12,13 @@ export interface FeatureBlok {
   name?: string;
   title?: string;
   description?: string;
+  supporting_details?: string[] | string | { content?: unknown[] };
   info?: string;
   price?: string;
   link_label?: string;
   link_text?: string;
   action_label?: string;
+  action_icon?: string;
   action_url?: string;
   cta_label?: string;
   button_label?: string;
@@ -46,6 +49,28 @@ function nestedCardHref(value: FeatureCardItem["action_url"]) {
 
 function imageUrl(image: FeatureBlok["image"]) {
   return typeof image === "string" ? image : image?.filename;
+}
+
+function supportingDetailLines(value: unknown): string[] {
+  if (!value) return [];
+  if (typeof value === "string") return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (Array.isArray(value)) return value.flatMap(supportingDetailLines);
+  if (typeof value !== "object") return [];
+
+  const node = value as { type?: string; text?: unknown; content?: unknown[] };
+  const collectText = (part: unknown): string => {
+    if (typeof part === "string") return part;
+    if (Array.isArray(part)) return part.map(collectText).join("");
+    if (!part || typeof part !== "object") return "";
+    const child = part as { text?: unknown; content?: unknown[] };
+    return (typeof child.text === "string" ? child.text : "") + (child.content ?? []).map(collectText).join("");
+  };
+
+  if (node.type === "paragraph" || node.type === "list_item") {
+    const line = collectText(node.content).trim();
+    return line ? [line] : [];
+  }
+  return (node.content ?? []).flatMap(supportingDetailLines);
 }
 
 function normalizeLayout(value?: string) {
@@ -81,6 +106,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
     ? layout !== "media-left"
     : layout === "media-right" || (splitPresentation && layout !== "media-left");
   const metadata = [blok.info, blok.price].filter(Boolean).join("  ·  ");
+  const supportingDetails = supportingDetailLines(blok.supporting_details);
   // Keep the media at the same relative size on either side. The old fixed
   // column templates made right-side media 60% wide but left-side media 40%.
   const mediaColumns = fill
@@ -141,7 +167,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
           <img src={image} alt={typeof blok.image === "object" ? blok.image.alt || title : title} className={`block ${mediaFit === "natural" ? "h-auto" : "h-full"} w-full ${imageFit} transition duration-500 group-hover:scale-[1.03]`} />
         ) : (
           <div className="flex h-full min-h-28 items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-cyan-100 text-blue-600">
-            <span className={`material-symbols-outlined ${compact ? "text-3xl" : "text-5xl"}`} aria-hidden="true">{blok.icon}</span>
+            <span className={`material-symbols-outlined ${compact ? "text-3xl" : "text-5xl"}`} aria-hidden="true">{resolveMaterialIcon(blok.icon)}</span>
           </div>
         )}
       </div>}
@@ -149,6 +175,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
         {blok.label && <span className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-600">{blok.label}</span>}
         <h3 className={`${fill ? "max-w-[16ch] font-mono text-2xl font-bold uppercase leading-[1.05] tracking-tight sm:text-3xl lg:text-4xl xl:text-5xl" : compact ? "text-base" : "text-xl"} ${fill ? "" : "font-semibold leading-tight tracking-tight"} ${titleColor}`}>{title}</h3>
         {blok.description && <p className={`${compact ? "mt-2 line-clamp-2 text-xs" : "mt-3 line-clamp-3 text-sm"} leading-relaxed ${descriptionColor}`}>{blok.description}</p>}
+        {supportingDetails.length > 0 && <ul className={`mt-4 space-y-2 text-sm leading-relaxed ${descriptionColor}`}>{supportingDetails.map((detail, index) => <li key={`${index}-${detail}`} className="flex gap-2"><span className="text-blue-600" aria-hidden="true">•</span><span>{detail}</span></li>)}</ul>}
         {metadata && <p className={`mt-3 text-[11px] ${metadataColor}`}>{metadata}</p>}
         {nestedCards.length > 0 && <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2">
           {nestedCards.map((item) => {
@@ -166,7 +193,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
               : <div key={item._uid || item.title} className={childClass}>{childCard}</div>;
           })}
         </div>}
-        {actionLabel && (actionUrl ? <a href={marketingHref(actionUrl)} className={`${fill ? "mt-6 border border-white/30 bg-white px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-slate-950 hover:bg-slate-200" : `${compact ? "mt-3 text-xs" : "mt-5 text-sm"} text-blue-600 hover:text-blue-800`} inline-flex w-fit shrink-0 items-center gap-2 font-semibold`}>{actionLabel}<span aria-hidden="true">→</span></a> : <span className={`${compact ? "mt-3 text-xs" : "mt-5 text-sm"} inline-flex w-fit shrink-0 font-semibold text-blue-600`}>{actionLabel}</span>)}
+        {actionLabel && (actionUrl ? <a href={marketingHref(actionUrl)} className={`${fill ? "mt-6 border border-white/30 bg-white px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-slate-950 hover:bg-slate-200" : `${compact ? "mt-3 text-xs" : "mt-5 text-sm"} text-blue-600 hover:text-blue-800`} inline-flex w-fit shrink-0 items-center gap-2 font-semibold`}>{actionLabel}<span className="material-symbols-outlined text-base" aria-hidden="true">{resolveMaterialIcon(blok.action_icon, "arrow_forward")}</span></a> : <span className={`${compact ? "mt-3 text-xs" : "mt-5 text-sm"} inline-flex w-fit shrink-0 font-semibold text-blue-600`}>{actionLabel}</span>)}
       </div>
     </div>
   );

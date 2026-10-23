@@ -225,8 +225,14 @@ function normalizeSection(block: StoryblokBlock, sectionId: string) {
           label: tab.label ?? tab.category ?? tab.topic,
           title: tab.title ?? tab.heading ?? tab.name,
           description: tab.description ?? tab.body,
+          supporting_details: tab.supporting_details ?? tab.info ?? [
+            tab.author ?? tab.writer_name,
+            tab.date ?? tab.published_at,
+            tab.read_time ?? tab.reading_time,
+          ].filter(Boolean).join("  ·  "),
           action_label: tab.action_label ?? tab.link_label ?? tab.cta_label ?? tab.button_label,
           action_url: normalizeUrl(tab.action_url ?? tab.link_url ?? tab.cta_url ?? tab.button_url ?? tab.url),
+          action_icon: tab.action_icon,
         }),
       );
       break;
@@ -302,7 +308,7 @@ function connectRepeatedNavItems(header: StoryblokBlock | undefined, sections: S
   };
 }
 
-export function normalizeStoryblokPage(content: any) {
+export function normalizeStoryblokPage(content: any, sharedChrome?: any) {
   const page = content ?? {};
   const sourceBlocks = Array.isArray(page.body) && page.body.length > 0
     ? page.body
@@ -312,8 +318,10 @@ export function normalizeStoryblokPage(content: any) {
         ? page.body
         : [];
 
-  const headerSource = firstBlock(page.header) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "header");
-  const footerSource = firstBlock(page.footer) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "footer");
+  // Shared site settings take precedence; keep page-level blocks as a migration
+  // fallback so existing stories continue to render before settings are filled.
+  const headerSource = firstBlock(sharedChrome?.header) ?? firstBlock(page.header) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "header");
+  const footerSource = firstBlock(sharedChrome?.footer) ?? firstBlock(page.footer) ?? sourceBlocks.find((block: StoryblokBlock) => block.component === "footer");
   const counts = new Map<string, number>();
   const usedSectionIds = new Map<string, number>();
   const sections = sourceBlocks
