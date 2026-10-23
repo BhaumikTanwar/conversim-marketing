@@ -1,4 +1,4 @@
-import { storyblokEditable } from "@storyblok/react";
+import { storyblokEditable, useStoryblokApi } from "@storyblok/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -18,12 +18,43 @@ interface ResourceGridBlok {
   background_style?: string;
   filter_group?: string;
   empty_message?: string;
+  story_source_folder?: string;
   cards?: ResourceCardBlok[];
 }
 
 export default function ResourceGrid({ blok }: { blok?: ResourceGridBlok }) {
   const [filter, setFilter] = useState({ category: "", query: "" });
+  const [sourceResult, setSourceResult] = useState<{ folder: string; cards: ResourceCardBlok[] }>({ folder: "", cards: [] });
+  const storyblokApi = useStoryblokApi();
   const group = filterGroup(blok?.filter_group);
+  const sourceFolder = blok?.story_source_folder?.trim().replace(/^\/+|\/+$/g, "");
+
+  useEffect(() => {
+    if (!sourceFolder || !storyblokApi) return;
+
+    let cancelled = false;
+    const previewDrafts = import.meta.env.DEV || new URLSearchParams(window.location.search).has("_storyblok");
+    storyblokApi.get("cdn/stories", {
+      starts_with: `${sourceFolder}/`,
+      version: previewDrafts ? "draft" : "published",
+      per_page: 100,
+      sort_by: "published_at:desc",
+    }).then(({ data }: { data: { stories?: Array<{ content?: ResourceCardBlok }> } }) => {
+      if (cancelled) return;
+      setSourceResult({
+        folder: sourceFolder,
+        cards: (data.stories ?? [])
+          .filter((story) => story.content?.component === "linkedin_post")
+          .map((story) => story.content as ResourceCardBlok),
+      });
+    }).catch((error: unknown) => {
+      console.error(`Failed to load Storyblok posts from "${sourceFolder}"`, error);
+      if (!cancelled) setSourceResult({ folder: sourceFolder, cards: [] });
+    });
+
+    return () => { cancelled = true; };
+  }, [sourceFolder, storyblokApi]);
+  const sourceCards = sourceResult.folder === sourceFolder ? sourceResult.cards : [];
 
   useEffect(() => {
     function onFilter(event: Event) {
@@ -39,7 +70,8 @@ export default function ResourceGrid({ blok }: { blok?: ResourceGridBlok }) {
 
   if (blok?.visible === false) return null;
 
-  const cards = (blok?.cards ?? []).filter((card) => card.visible !== false && card.title?.trim());
+  const cards = [...(blok?.cards ?? []), ...sourceCards]
+    .filter((card) => card.visible !== false && card.title?.trim());
   const query = filter.query.trim().toLowerCase();
   const filteredCards = cards.filter((card) => {
     const categoryMatches =

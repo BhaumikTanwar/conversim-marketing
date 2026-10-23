@@ -44,3 +44,5 @@ Local development requests draft Storyblok stories. Production builds request pu
 The checked-in sitemap and prerendered metadata cover the fixed routes listed in `src/seo.ts`. CMS pages receive SEO metadata in the browser from their Storyblok fields; adding every published CMS page to the sitemap and pre-rendering its head tags at build time is a follow-up production SEO improvement.
 
 The waitlist and campaign forms currently preserve the existing landing-page behavior and show a client-side success state; they do not submit leads to a backend. Connect them to the approved lead-capture service before relying on them in production.
+
+LinkedIn company-page posts can be synced to Storyblok as reviewable blog drafts using the scheduled GitHub Actions workflow. See [LINKEDIN-SYNC.md](./LINKEDIN-SYNC.md) for the Storyblok schema and repository secret setup.
