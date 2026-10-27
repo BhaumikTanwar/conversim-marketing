@@ -23,13 +23,37 @@ function ScrollAndMeta() {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       return;
     }
-    const timer = window.setTimeout(() => {
-      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({
+    const targetId = decodeURIComponent(hash.slice(1));
+    let observer: MutationObserver | undefined;
+    let timeout: number | undefined;
+    let cancelled = false;
+
+    const scrollToTarget = () => {
+      const target = document.getElementById(targetId);
+      if (!target) return false;
+      observer?.disconnect();
+      if (timeout !== undefined) window.clearTimeout(timeout);
+      target.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
-    }, 60);
-    return () => window.clearTimeout(timer);
+
+      return true;
+    };
+
+    if (!scrollToTarget()) {
+      observer = new MutationObserver(() => {
+        if (!cancelled) scrollToTarget();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+      timeout = window.setTimeout(() => observer?.disconnect(), 10000);
+    }
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
   }, [pathname, hash]);
 
   return null;

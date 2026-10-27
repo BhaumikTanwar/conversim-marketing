@@ -61,6 +61,21 @@ export default function SectorFAQ(props: SectorFAQProps) {
     ? (blok.items ?? []).filter((item) => item.question || item.answer)
     : defaultItems;
   if (!blok?.eyebrow && !heading && !intro && items.length === 0) return null;
+  const structuredFaqs = items.filter((item) => item.question?.trim() && item.answer?.trim());
+  const faqJsonLd = structuredFaqs.length
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: structuredFaqs.map((item) => ({
+          "@type": "Question",
+          name: item.question!.trim(),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer!.trim(),
+          },
+        })),
+      }).replace(/</g, "\\u003c")
+    : null;
 
   return (
     <section
@@ -68,6 +83,7 @@ export default function SectorFAQ(props: SectorFAQProps) {
       id={blok?.section_id || "faq"}
       className={`${sectionSpacing(layout)} px-4 sm:px-6 lg:px-8`}
     >
+      {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />}
       <div className={`mx-auto ${sectionContainer(layout)} ${centered ? "max-w-3xl" : "grid lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)]"} gap-10 lg:gap-16`}>
         {/* LEFT SIDE - STAYS STICKY */}
         <div className={`${centered ? "text-center mx-auto" : "lg:sticky lg:top-28 self-start"}`}>

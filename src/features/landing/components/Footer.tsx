@@ -121,9 +121,10 @@ export default function Footer({ blok }: FooterProps) {
   ) {
     if (!url) return;
 
-    if (url.startsWith("#")) {
+    const isHomeAnchor = url.startsWith("#") || url.startsWith("/#");
+    if (isHomeAnchor) {
       event.preventDefault();
-      scrollToSection(url.slice(1), event);
+      scrollToSection(url.replace(/^\/?#/, ""), event);
     }
   }
 
@@ -201,7 +202,7 @@ export default function Footer({ blok }: FooterProps) {
               <ul className="space-y-3 text-sm">
                 {(column.links || []).filter((link) => link.label && link.url).map((link, linkIndex) => {
                   const url = link.url || "#";
-                  const isAnchor = url.startsWith("#");
+                  const isHomeAnchor = url.startsWith("#") || url.startsWith("/#");
 
                   return (
                     <li
@@ -215,7 +216,7 @@ export default function Footer({ blok }: FooterProps) {
                     >
                       <a
                         className="text-slate-600 hover:text-slate-900 transition-colors"
-                        href={isAnchor ? `/${url}` : url}
+                        href={isHomeAnchor ? `/#${url.replace(/^\/?#/, "")}` : url}
                         target={
                           link.open_in_new_tab
                             ? "_blank"
