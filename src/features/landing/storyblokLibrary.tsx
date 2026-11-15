@@ -22,6 +22,9 @@ import LogoStrip from "./components/LogoStrip";
 import TabbedFeatureSection from "./components/TabbedFeatureSection";
 import StatsBar from "./components/StatsBar";
 import CaseStudyGrid from "./components/CaseStudyGrid";
+import Challenge from "./components/Challenge";
+import KeyVisual from "./components/KeyVisual";
+import BookADemo from "./components/BookADemo";
 
 export type StoryblokBlock = Record<string, any>;
 
@@ -43,6 +46,9 @@ const sectionIds: Record<string, string> = {
   tabbed_feature: "tabbed-feature",
   stats_bar: "stats",
   case_study_grid: "case-studies",
+  challenge: "challenge",
+  key_visual: "key-visual",
+  book_a_demo: "book-a-demo",
 };
 
 const sectionComponents = new Set(Object.keys(sectionIds));
@@ -371,6 +377,9 @@ const renderers: Record<string, ComponentType<{ blok?: any }>> = {
   tabbed_feature: TabbedFeatureSection,
   stats_bar: StatsBar,
   case_study_grid: CaseStudyGrid,
+  challenge: Challenge,
+  key_visual: KeyVisual,
+  book_a_demo: BookADemo,
 };
 
 export function StoryblokSections({ sections }: { sections: StoryblokBlock[] }) {

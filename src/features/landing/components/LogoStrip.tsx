@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { storyblokEditable } from "@storyblok/react";
+import { ShieldCheck } from "lucide-react";
 
 interface LogoItem {
   _uid?: string;
@@ -8,11 +9,17 @@ interface LogoItem {
   url?: string;
 }
 
+interface BadgeItem {
+  _uid?: string;
+  name?: string;
+}
+
 interface LogoStripBlok {
   _uid?: string;
   visible?: boolean;
   eyebrow?: string;
   items?: LogoItem[];
+  badges?: BadgeItem[];
   section_id?: string;
   background_style?: string;
   background_color?: string;
@@ -52,6 +59,16 @@ export default function LogoStrip({ blok }: { blok?: LogoStripBlok }) {
             return item.url ? <a key={item._uid || item.name} href={item.url} className={cellClass} target={item.url.startsWith("http") ? "_blank" : undefined} rel={item.url.startsWith("http") ? "noreferrer" : undefined}>{content}</a> : <div key={item._uid || item.name} className={cellClass}>{content}</div>;
           })}
         </div>
+        {(blok.badges ?? []).filter((badge) => badge.name?.trim()).length > 0 && (
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {blok.badges!.filter((badge) => badge.name?.trim()).map((badge) => (
+              <span key={badge._uid || badge.name} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${darkSurface ? "border-white/20 text-white/80" : "border-slate-200 text-slate-600"}`}>
+                <ShieldCheck size={14} aria-hidden="true" />
+                {badge.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

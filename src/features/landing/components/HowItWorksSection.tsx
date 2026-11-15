@@ -101,7 +101,7 @@ export default function HowItWorksSection({
         </motion.div>
 
         {/* RIGHT SIDE */}
-        <ol className={`relative ${cards ? "grid md:grid-cols-3 gap-4" : centered ? "max-w-3xl mx-auto" : ""}`}>
+        <ol className={`relative ${cards ? "grid gap-6 md:grid-cols-3 lg:gap-8" : centered ? "max-w-3xl mx-auto" : ""}`}>
           {steps.map((step, index) => (
             <motion.li
               key={step._uid || `${step.title}-${index}`}
@@ -113,12 +113,18 @@ export default function HowItWorksSection({
                 delay: index * 0.05,
                 ease: EASE,
               }}
-              className={`${cards ? "rounded-2xl border border-slate-300/70 p-6" : "py-9 md:py-12 border-t border-slate-300/70"} ${compact ? "py-6 md:py-8" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "featured") ? "bg-white rounded-2xl px-6 shadow-sm" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "compact") ? "py-5" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "wide") ? cards ? "md:col-span-2" : "lg:-ml-10 lg:pl-10 bg-white rounded-2xl shadow-sm" : ""} ${
-                index === steps.length - 1 ? "border-b" : ""
+              onPointerMove={cards ? (e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              } : undefined}
+              className={`${cards ? "spotlight relative rounded-2xl border border-slate-200/80 bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_20px_45px_-20px_rgba(37,99,235,0.3)]" : "py-9 md:py-12 border-t border-slate-300/70"} ${compact ? "py-6 md:py-8" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "featured") ? "bg-white rounded-2xl px-6 shadow-sm" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "compact") ? "py-5" : ""} ${((step.layout_variant || "").toLowerCase().replace(/[\s-]+/g, "_") === "wide") ? cards ? "md:col-span-2" : "lg:-ml-10 lg:pl-10 bg-white rounded-2xl shadow-sm" : ""} ${
+                !cards && index === steps.length - 1 ? "border-b" : ""
               } ${(step.layout_variant || "").toLowerCase() === "indented" || (!step.layout_variant && !cards && !centered && index === 1) ? "lg:ml-10" : ""}`}
             >
               <div>
-                <div className="flex items-center gap-4 mb-3">
+                {cards && <span className="mb-5 block font-mono text-xs font-semibold tracking-[0.2em] text-slate-300">{String(index + 1).padStart(2, "0")}</span>}
+                <div className={`flex items-center gap-4 ${cards ? "mb-4" : "mb-3"}`}>
                   {step.icon && <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-100 text-brand">
                     <span
                       className="material-symbols-outlined text-2xl"
