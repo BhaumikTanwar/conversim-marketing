@@ -31,6 +31,7 @@ export interface FeatureBlok {
   background_style?: string;
   nested_cards?: FeatureCardItem[];
   hover_effect?: string;
+  flip_on_hover?: boolean;
 }
 
 interface FeatureCardItem {
@@ -73,13 +74,15 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   const title = blok?.title || blok?.name;
   if (!title) return null;
   const image = imageUrl(blok.image);
-  const hasMedia = Boolean(image || blok.icon);
   const layout = normalizeFeatureLayout(blok.layout_variant);
   const presentation = (blok.presentation || "fit").toLowerCase().replace(/[\s_]+/g, "-");
   const mediaFit = normalizeMediaFit(blok.media_fit || (presentation === "fill" ? "fill" : "fit"));
   const imageFit = mediaFit === "cover" ? "object-cover" : "object-contain";
   const fill = presentation === "fill" || presentation === "full-width";
   const splitPresentation = presentation === "split" || presentation === "split-section";
+  // In flip mode the image moves to the back face, so exclude it from front layout.
+  const flipMode = Boolean(blok?.flip_on_hover) && !fill && !splitPresentation;
+  const hasMedia = flipMode ? Boolean(blok?.icon) : Boolean(image || blok?.icon);
   const compact = layout === "compact";
   const glow = blok.hover_effect === "glow_border" && !fill && !splitPresentation;
   const splitMedia = hasMedia && (fill || splitPresentation || compact || layout === "media-left" || layout === "media-right" || layout === "wide");
@@ -178,6 +181,32 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
       </div>
     </div>
   );
+
+  if (flipMode) {
+    const backFace = image ? (
+      <img src={image} alt={typeof blok.image === "object" ? blok.image?.alt || title : title} className="w-full h-full object-cover" />
+    ) : (
+      <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center p-8">
+        <span className="material-symbols-outlined text-7xl text-white" aria-hidden="true">{resolveMaterialIcon(blok?.icon)}</span>
+      </div>
+    );
+    // Glow wraps only the front face — glow-card has overflow:clip which would
+    // clip the 3D back face if it wrapped the whole flip container.
+    const frontFace = glow ? <div className="glow-card h-full w-full">{card}</div> : card;
+    const flipInner = (
+      <div className="flip-card-inner h-full relative">
+        <div className="flip-card-face absolute inset-0">{frontFace}</div>
+        <div className="flip-card-face flip-card-back absolute inset-0 rounded-2xl overflow-hidden border border-blue-200">{backFace}</div>
+      </div>
+    );
+    const flipFramed = <div className="flip-card min-h-72 h-full">{flipInner}</div>;
+    if (!standalone) return flipFramed;
+    return (
+      <section className={fill ? "px-0 py-0" : "px-4 py-10 sm:px-6 md:py-14 lg:px-8"}>
+        <div className={fill ? "w-full" : "mx-auto max-w-6xl"}>{flipFramed}</div>
+      </section>
+    );
+  }
 
   const framed = glow ? <div className="glow-card h-full">{card}</div> : card;
 

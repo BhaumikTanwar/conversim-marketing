@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { marketingHref } from "../../../lib/env";
 import { resolveMaterialIcon } from "../materialIcons";
 
@@ -17,6 +18,11 @@ function normalizeStyle(value?: string) {
 function storyblokCtaClasses(value?: string, onBrand = false) {
   const style = normalizeStyle(value);
 
+  if (style === "bubble") {
+    return onBrand
+      ? "border border-white text-white hover:text-blue-700 cta-bubble"
+      : "border border-brand text-brand hover:text-white cta-bubble";
+  }
   if (style === "outline" || style === "outlined" || style === "outline_button") {
     return onBrand
       ? "border border-white/70 text-white hover:bg-white/10"
@@ -53,12 +59,17 @@ export default function StoryblokCta({
   const style = value?.style || value?.variant;
 
   const newTab = value?.open_in_new_tab === true;
+  const isBubble = normalizeStyle(style) === "bubble";
+  const bubbleStyle = isBubble
+    ? ({ "--bubble-fill": onBrand ? "#ffffff" : "#2563eb" } as CSSProperties)
+    : undefined;
 
   return (
     <a
       href={marketingHref(url)}
       target={newTab ? "_blank" : undefined}
       rel={newTab ? "noopener noreferrer" : undefined}
+      style={bubbleStyle}
       className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition-colors ${storyblokCtaClasses(style, onBrand)} ${className}`}
     >
       {icon && (
