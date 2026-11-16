@@ -22,7 +22,7 @@ export default function HeroVideo({ value, children }: { value: HeroVideoValue; 
   return (
     <>
       <video
-        className="w-full h-full object-contain object-center scale-110"
+        className="w-full h-full object-contain object-center"
         autoPlay={value.autoplay !== false}
         preload="metadata"
         muted={value.muted !== false}

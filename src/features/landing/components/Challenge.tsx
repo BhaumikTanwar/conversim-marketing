@@ -3,7 +3,7 @@ import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
 import { sectionHeadingClass, sectionSpacing } from "../sectionStyles";
 
-export interface ChallengeStat { _uid?: string; value?: string; label?: string; }
+export interface ChallengeStat { _uid?: string; value?: string; label?: string; source_url?: string; }
 export interface ChallengeBlok {
   _uid?: string;
   visible?: boolean;
@@ -58,7 +58,14 @@ export default function Challenge({ blok }: { blok?: ChallengeBlok }) {
                 className={`min-w-0 ${single ? "text-center" : ""} ${index % cols !== 0 ? (dividerAt === "lg" ? `lg:border-l lg:pl-10 ${t.line}` : `sm:border-l sm:pl-10 ${t.line}`) : ""}`}
               >
                 <p className={`text-3xl font-semibold tracking-[-0.06em] sm:text-6xl ${t.heading}`}>{stat.value}</p>
-                {stat.label?.trim() && <p className={`mt-2 text-[9px] font-semibold uppercase leading-snug tracking-[0.1em] sm:mt-3 sm:text-[11px] sm:tracking-[0.16em] ${t.label}`}>{stat.label}</p>}
+                {stat.label?.trim() && (
+                  <p className={`mt-2 text-[9px] font-semibold uppercase leading-snug tracking-[0.1em] sm:mt-3 sm:text-[11px] sm:tracking-[0.16em] ${t.label}`}>
+                    {stat.label}
+                    {stat.source_url?.trim() && (
+                      <a href={stat.source_url} target="_blank" rel="noopener noreferrer" className={`ml-1.5 normal-case tracking-normal font-medium underline underline-offset-2 transition-opacity opacity-50 hover:opacity-100 ${t.label}`} aria-label="View source">source ↗</a>
+                    )}
+                  </p>
+                )}
               </motion.div>
             ))}
           </div>

@@ -82,9 +82,11 @@ function seoPages(site: string, token?: string): Plugin {
         path.join(outDir, "sitemap.xml"),
         `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls}\n</urlset>\n`,
       );
+      const appRoutes = ["login", "signup", "dashboard", "settings", "billing", "profile", "attempts", "workshops", "call-presets", "mcp-servers", "personas", "evaluations", "try-demo", "share", "admin"];
+      const disallow = appRoutes.map((r) => `Disallow: /${r}`).join("\n");
       fs.writeFileSync(
         path.join(outDir, "robots.txt"),
-        `User-agent: *\nAllow: /\nDisallow: /login\nDisallow: /dashboard\nDisallow: /admin\n\nSitemap: ${site}/sitemap.xml\n`,
+        `User-agent: *\nAllow: /\n${disallow}\n\nSitemap: ${site}/sitemap.xml\n`,
       );
     },
   };

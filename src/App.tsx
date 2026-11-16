@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect } from "react";
 import { useLocation, useRoutes } from "react-router";
 
-import { usePageMeta } from "./shared/hooks/usePageMeta";
 import Loader from "./shared/components/Loader";
 import { APP_ROUTES, toAppUrl } from "./lib/env";
 
@@ -12,7 +11,6 @@ const Terms = lazy(() => import("./features/legal/Terms"));
 
 function ScrollAndMeta() {
   const { pathname, hash } = useLocation();
-  usePageMeta(pathname);
 
   useEffect(() => {
     if (!hash) {

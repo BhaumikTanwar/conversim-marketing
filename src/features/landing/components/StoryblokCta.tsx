@@ -7,6 +7,7 @@ export interface StoryblokCtaValue {
   icon?: string;
   style?: string;
   variant?: string;
+  open_in_new_tab?: boolean;
 }
 
 function normalizeStyle(value?: string) {
@@ -51,9 +52,13 @@ export default function StoryblokCta({
   const icon = value?.icon?.trim();
   const style = value?.style || value?.variant;
 
+  const newTab = value?.open_in_new_tab === true;
+
   return (
     <a
       href={marketingHref(url)}
+      target={newTab ? "_blank" : undefined}
+      rel={newTab ? "noopener noreferrer" : undefined}
       className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition-colors ${storyblokCtaClasses(style, onBrand)} ${className}`}
     >
       {icon && (

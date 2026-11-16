@@ -1,6 +1,7 @@
 import { storyblokEditable } from "@storyblok/react";
 import { marketingHref } from "../../../lib/env";
 import { resolveMaterialIcon } from "../materialIcons";
+import { richTextToLines } from "../../../lib/richText";
 
 export interface FeatureBlok {
   _uid?: string;
@@ -52,29 +53,7 @@ function imageUrl(image: FeatureBlok["image"]) {
   return typeof image === "string" ? image : image?.filename;
 }
 
-function supportingDetailLines(value: unknown): string[] {
-  if (!value) return [];
-  if (typeof value === "string") return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (Array.isArray(value)) return value.flatMap(supportingDetailLines);
-  if (typeof value !== "object") return [];
-
-  const node = value as { type?: string; text?: unknown; content?: unknown[] };
-  const collectText = (part: unknown): string => {
-    if (typeof part === "string") return part;
-    if (Array.isArray(part)) return part.map(collectText).join("");
-    if (!part || typeof part !== "object") return "";
-    const child = part as { text?: unknown; content?: unknown[] };
-    return (typeof child.text === "string" ? child.text : "") + (child.content ?? []).map(collectText).join("");
-  };
-
-  if (node.type === "paragraph" || node.type === "list_item") {
-    const line = collectText(node.content).trim();
-    return line ? [line] : [];
-  }
-  return (node.content ?? []).flatMap(supportingDetailLines);
-}
-
-function normalizeLayout(value?: string) {
+function normalizeFeatureLayout(value?: string) {
   const normalized = (value || "standard").toLowerCase().replace(/[\s_]+/g, "-");
   if (["left", "image-left", "left-media", "media-left"].includes(normalized)) return "media-left";
   if (["right", "image-right", "right-media", "media-right"].includes(normalized)) return "media-right";
@@ -95,7 +74,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   if (!title) return null;
   const image = imageUrl(blok.image);
   const hasMedia = Boolean(image || blok.icon);
-  const layout = normalizeLayout(blok.layout_variant);
+  const layout = normalizeFeatureLayout(blok.layout_variant);
   const presentation = (blok.presentation || "fit").toLowerCase().replace(/[\s_]+/g, "-");
   const mediaFit = normalizeMediaFit(blok.media_fit || (presentation === "fill" ? "fill" : "fit"));
   const imageFit = mediaFit === "cover" ? "object-cover" : "object-contain";
@@ -108,7 +87,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
     ? layout !== "media-left"
     : layout === "media-right" || (splitPresentation && layout !== "media-left");
   const metadata = [blok.info, blok.price].filter(Boolean).join("  ·  ");
-  const supportingDetails = supportingDetailLines(blok.supporting_details);
+  const supportingDetails = richTextToLines(blok.supporting_details);
   // Keep the media at the same relative size on either side. The old fixed
   // column templates made right-side media 60% wide but left-side media 40%.
   const mediaColumns = fill

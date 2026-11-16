@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { marketingHref } from "../../../lib/env";
 import { resolveMaterialIcon } from "../materialIcons";
+import { richTextToLines } from "../../../lib/richText";
 
 interface TabItem {
   _uid?: string;
@@ -33,31 +34,6 @@ interface TabbedFeatureBlok {
 
 function imageUrl(image?: TabItem["image"]) { return typeof image === "string" ? image : image?.filename; }
 
-function richTextToLines(value: unknown): string[] {
-  if (!value) return [];
-  if (typeof value === "string") return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (Array.isArray(value)) return value.flatMap(richTextToLines);
-  if (typeof value !== "object") return [];
-
-  const node = value as { type?: string; text?: unknown; content?: unknown[] };
-  const collectInlineText = (child: unknown): string => {
-    if (!child) return "";
-    if (typeof child === "string") return child;
-    if (Array.isArray(child)) return child.map(collectInlineText).join("");
-    if (typeof child !== "object") return "";
-    const inline = child as { text?: unknown; content?: unknown[] };
-    return (typeof inline.text === "string" ? inline.text : "") + (inline.content ?? []).map(collectInlineText).join("");
-  };
-
-  if (node.type === "paragraph" || node.type === "list_item") {
-    const line = collectInlineText(node.content).trim();
-    return line ? [line] : [];
-  }
-
-  // Storyblok rich-text paragraphs/lists are nested nodes; keep each paragraph
-  // as one readable detail rather than stringifying the editor's JSON payload.
-  return (node.content ?? []).flatMap(richTextToLines);
-}
 
 export default function TabbedFeatureSection({ blok }: { blok?: TabbedFeatureBlok }) {
   const [activeIndex, setActiveIndex] = useState(0);
