@@ -1,4 +1,5 @@
 import { EASE } from "../../../lib/animations";
+import { useLeadForm } from "../../../lib/leads";
 import { useState, type SubmitEvent } from "react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -31,7 +32,7 @@ export default function SectorCampaignForm({
   secondaryField,
   teamUnitLabel,
 }: SectorCampaignFormProps) {
-  const [submitted, setSubmitted] = useState(false);
+  const lead = useLeadForm("sector-campaign");
   const [form, setForm] = useState<CampaignFormState>({
     company: "",
     email: "",
@@ -47,7 +48,7 @@ export default function SectorCampaignForm({
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    void lead.send({ ...form });
   }
 
   return (
@@ -79,7 +80,7 @@ export default function SectorCampaignForm({
         </motion.p>
 
         <AnimatePresence mode="wait">
-          {submitted ? (
+          {lead.done ? (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -137,9 +138,11 @@ export default function SectorCampaignForm({
                 className="w-full bg-aurora-surface-2 border border-aurora-border rounded-xl px-5 py-3 text-sm text-aurora-text outline-none transition-all placeholder:text-aurora-text-3 focus:border-brand focus:bg-aurora-surface focus:ring-2 focus:ring-indigo-100 resize-none shadow-2xs"
               />
 
+              {lead.error && <p role="alert" className="text-sm text-rose-600">{lead.error}</p>}
+
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button type="submit" className="w-full shadow-md">
-                  Request Campaign Setup
+                <Button type="submit" disabled={lead.sending} className="w-full shadow-md">
+                  {lead.sending ? "Sending…" : "Request Campaign Setup"}
                   <span className="material-symbols-outlined text-base">arrow_forward</span>
                 </Button>
               </motion.div>

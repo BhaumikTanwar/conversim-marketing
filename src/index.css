@@ -570,3 +570,54 @@ time,
     display: none;
   }
 }
+
+/* ── Glow-border card: a brand-gradient highlight travels around the edge on hover ── */
+.glow-card {
+  display: flex;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  border-radius: 1rem;
+  padding: 2px;
+  background: rgb(226 232 240 / 0.8);
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.glow-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  z-index: -1;
+  opacity: 0;
+  background: conic-gradient(from 0deg, transparent 0 55%, #4f46e5 70%, #2563eb 82%, #06b6d4 92%, transparent 100%);
+  transition: opacity 300ms ease;
+  animation: glow-card-spin 4s linear infinite;
+  animation-play-state: paused;
+}
+.glow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 45px -20px rgb(37 99 235 / 0.45);
+}
+.glow-card:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+.glow-card > .glow-inner {
+  flex: 1;
+  height: auto;
+  min-width: 0;
+  border-width: 0;
+  border-radius: calc(1rem - 2px);
+  box-shadow: none;
+  transform: none;
+  translate: none;
+}
+@keyframes glow-card-spin {
+  to { rotate: 360deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-card::before { animation: none; }
+}

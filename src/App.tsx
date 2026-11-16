@@ -3,12 +3,11 @@ import { useLocation, useRoutes } from "react-router";
 
 import { usePageMeta } from "./shared/hooks/usePageMeta";
 import Loader from "./shared/components/Loader";
-import { toAppUrl } from "./lib/env";
+import { APP_ROUTES, toAppUrl } from "./lib/env";
 
 const Landing = lazy(() => import("./features/landing/pages/Landing"));
 const StoryblokPage = lazy(() => import("./features/landing/pages/StoryblokPage"));
 const SalesRoleplay = lazy(() => import("./features/landing/pages/SalesRoleplay"));
-const HealthcareLanding = lazy(() => import("./features/landing/pages/HealthcareLanding"));
 const PharmaLanding = lazy(() => import("./features/landing/pages/PharmaLanding"));
 const InsuranceLanding = lazy(() => import("./features/landing/pages/InsuranceLanding"));
 const Privacy = lazy(() => import("./features/legal/Privacy"));
@@ -80,26 +79,11 @@ export default function App() {
     { path: "/", element: <Landing /> },
     { path: "/home", element: <HomeRedirect /> },
     { path: "/sales-roleplay", element: <SalesRoleplay /> },
-    { path: "/healthcare", element: <HealthcareLanding /> },
     { path: "/pharma", element: <PharmaLanding /> },
     { path: "/insurance", element: <InsuranceLanding /> },
     { path: "/privacy", element: <Privacy /> },
     { path: "/terms", element: <Terms /> },
-    { path: "/login/*", element: <MainAppRedirect /> },
-    { path: "/signup/*", element: <MainAppRedirect /> },
-    { path: "/dashboard/*", element: <MainAppRedirect /> },
-    { path: "/settings/*", element: <MainAppRedirect /> },
-    { path: "/billing/*", element: <MainAppRedirect /> },
-    { path: "/profile/*", element: <MainAppRedirect /> },
-    { path: "/attempts/*", element: <MainAppRedirect /> },
-    { path: "/workshops/*", element: <MainAppRedirect /> },
-    { path: "/call-presets/*", element: <MainAppRedirect /> },
-    { path: "/mcp-servers/*", element: <MainAppRedirect /> },
-    { path: "/personas/*", element: <MainAppRedirect /> },
-    { path: "/evaluations/*", element: <MainAppRedirect /> },
-    { path: "/try-demo/*", element: <MainAppRedirect /> },
-    { path: "/share/*", element: <MainAppRedirect /> },
-    { path: "/admin/*", element: <MainAppRedirect /> },
+    ...APP_ROUTES.map((route) => ({ path: `/${route}/*`, element: <MainAppRedirect /> })),
     { path: "*", element: <StoryblokPage /> },
   ]);
 

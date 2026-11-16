@@ -29,6 +29,7 @@ export interface FeatureBlok {
   media_fit?: string;
   background_style?: string;
   nested_cards?: FeatureCardItem[];
+  hover_effect?: string;
 }
 
 interface FeatureCardItem {
@@ -101,6 +102,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
   const fill = presentation === "fill" || presentation === "full-width";
   const splitPresentation = presentation === "split" || presentation === "split-section";
   const compact = layout === "compact";
+  const glow = blok.hover_effect === "glow_border" && !fill && !splitPresentation;
   const splitMedia = hasMedia && (fill || splitPresentation || compact || layout === "media-left" || layout === "media-right" || layout === "wide");
   const mediaRight = fill
     ? layout !== "media-left"
@@ -161,7 +163,7 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
     : mediaRight ? "sm:col-start-1 sm:row-start-1" : "sm:col-start-2 sm:row-start-1";
 
   const card = (
-    <div {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`group flex h-full flex-col overflow-hidden ${splitPresentation ? "bg-transparent" : fill ? "rounded-none border-0" : "rounded-2xl border"} ${splitPresentation ? "border-0 shadow-none" : `${cardBorder} ${cardBackground} ${fill ? "shadow-none" : dark ? "shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)]" : "shadow-sm hover:shadow-md"}`} transition duration-300 ${fill || splitPresentation ? "" : "hover:-translate-y-0.5"} ${fillHeight} ${splitHeight} ${splitMedia ? `${gridClass} ${mediaColumns}` : ""}`}>
+    <div {...(blok._uid ? storyblokEditable(blok as never) : {})} className={`group ${glow ? "glow-inner " : ""}flex h-full flex-col overflow-hidden ${splitPresentation ? "bg-transparent" : fill ? "rounded-none border-0" : "rounded-2xl border"} ${splitPresentation ? "border-0 shadow-none" : `${cardBorder} ${cardBackground} ${fill ? "shadow-none" : dark ? "shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)]" : "shadow-sm hover:shadow-md"}`} transition duration-300 ${fill || splitPresentation ? "" : "hover:-translate-y-0.5"} ${fillHeight} ${splitHeight} ${splitMedia ? `${gridClass} ${mediaColumns}` : ""}`}>
       {hasMedia && <div className={`overflow-hidden ${fill ? "bg-transparent" : "bg-slate-50"} ${mediaFrame} ${splitMedia ? `${mediaRowClass} ${mediaColumnClass}` : ""} ${mediaFit === "natural" && !fill ? "self-start" : ""}`}>
         {image ? (
           <img src={image} alt={typeof blok.image === "object" ? blok.image.alt || title : title} className={`block ${mediaFit === "natural" ? "h-auto" : "h-full"} w-full ${imageFit} transition duration-500 group-hover:scale-[1.03]`} />
@@ -198,11 +200,13 @@ export default function Feature({ blok, standalone = false }: { blok?: FeatureBl
     </div>
   );
 
-  if (!standalone) return card;
+  const framed = glow ? <div className="glow-card h-full">{card}</div> : card;
+
+  if (!standalone) return framed;
 
   return (
   <section className={splitPresentation ? cardBackground : fill ? "px-0 py-0" : "px-4 py-10 sm:px-6 md:py-14 lg:px-8"}>
-      <div className={splitPresentation ? "mx-auto max-w-7xl px-4 py-10 sm:px-8 sm:py-16 lg:px-12 lg:py-24" : fill ? "w-full" : "mx-auto max-w-6xl"}>{card}</div>
+      <div className={splitPresentation ? "mx-auto max-w-7xl px-4 py-10 sm:px-8 sm:py-16 lg:px-12 lg:py-24" : fill ? "w-full" : "mx-auto max-w-6xl"}>{framed}</div>
     </section>
   );
 }

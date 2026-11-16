@@ -3,10 +3,10 @@ import { storyblokEditable } from "@storyblok/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { EASE } from "../../../lib/animations";
-import { toAppUrl } from "../../../lib/env";
+import { marketingHref, toAppUrl } from "../../../lib/env";
 import { scrollToSection } from "../../../lib/utils";
 import { Logo } from "../../../shared/components/Logo";
 
@@ -70,6 +70,7 @@ function dropdownGroupsFor(item: NavigationItem) {
 
 export default function Header({ blok }: HeaderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -128,10 +129,20 @@ export default function Header({ blok }: HeaderProps) {
 
   function handleNavigation(event: React.MouseEvent<HTMLAnchorElement>, target?: string) {
     if (!target) return;
+    // Same-site pages go through the router instead of a full page load; modified clicks keep the browser default.
+    if (target.startsWith("/") && !target.startsWith("//") && marketingHref(target) === target && event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
+      event.preventDefault();
+      navigate(target);
+      return;
+    }
     const anchor = target.startsWith("#") ? target.slice(1) : target;
 
     if (!anchor) {
-      scrollToSection("", event);
+      if (location.pathname === "/") scrollToSection("", event);
+      else {
+        event.preventDefault();
+        navigate("/");
+      }
       return;
     }
 
@@ -148,7 +159,7 @@ export default function Header({ blok }: HeaderProps) {
         window.scrollTo({ top: targetY, behavior: "smooth" });
         window.history.pushState(null, "", `${location.pathname}${target}`);
       } else {
-        scrollToSection(anchor, event);
+        navigate(`/${target}`);
       }
     }
   }

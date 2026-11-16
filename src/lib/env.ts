@@ -11,8 +11,10 @@ export function toAppUrl(path?: string) {
   return `${env.appUrl}/${path.replace(/^\/+/, "")}`;
 }
 
+// Paths that belong to the product app; links and routes to them leave the marketing site.
+export const APP_ROUTES = ["login", "signup", "dashboard", "settings", "billing", "profile", "attempts", "workshops", "call-presets", "mcp-servers", "personas", "evaluations", "try-demo", "share", "admin"];
+const appRoute = new RegExp(`^/(${APP_ROUTES.join("|")})(/|$)`);
+
 export function marketingHref(path: string) {
-  return /^\/(login|signup|dashboard|settings|billing|profile|attempts|workshops|call-presets|mcp-servers|personas|evaluations|try-demo|share|admin)(\/|$)/.test(path)
-    ? toAppUrl(path)
-    : path;
+  return appRoute.test(path) ? toAppUrl(path) : path;
 }

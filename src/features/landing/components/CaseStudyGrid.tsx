@@ -2,6 +2,8 @@ import { storyblokEditable } from "@storyblok/react";
 import { useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { assetUrl } from "../../../lib/assets";
+import { isDark } from "../../../lib/color";
 import { marketingHref } from "../../../lib/env";
 
 interface Asset { filename?: string; alt?: string; }
@@ -35,18 +37,8 @@ interface CaseStudyGridBlok {
   section_id?: string;
 }
 
-function assetUrl(image?: Asset | string) {
-  return typeof image === "string" ? image : image?.filename;
-}
 function linkUrl(value: CaseStudyCard["action_url"]) {
   return typeof value === "string" ? value : value?.url || value?.cached_url || "";
-}
-function isDark(color: string) {
-  const hex = color.match(/^#([\da-f]{3}|[\da-f]{6})$/i)?.[1];
-  if (!hex) return false;
-  const full = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
-  const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16));
-  return (r * 299 + g * 587 + b * 114) / 1000 < 145;
 }
 
 export default function CaseStudyGrid({ blok }: { blok?: CaseStudyGridBlok }) {

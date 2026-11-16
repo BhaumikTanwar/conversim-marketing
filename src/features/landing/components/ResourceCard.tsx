@@ -1,6 +1,7 @@
 import { storyblokEditable } from "@storyblok/react";
 import { ArrowUpRight } from "lucide-react";
 
+import { assetUrl } from "../../../lib/assets";
 import { marketingHref } from "../../../lib/env";
 
 interface StoryblokAsset {
@@ -26,9 +27,6 @@ export interface ResourceCardBlok {
   media_fit?: string;
 }
 
-function assetUrl(asset?: StoryblokAsset | string) {
-  return typeof asset === "string" ? asset : asset?.filename;
-}
 
 function assetAlt(asset: StoryblokAsset | string | undefined, fallback: string) {
   return typeof asset === "object" ? asset.alt || fallback : fallback;

@@ -10,10 +10,6 @@ export const PAGE_META: Record<string, PageMeta> = {
     title: "AI Sales Roleplay Training | Conversim",
     description: "Sharpen discovery, objection handling and closing with AI sales roleplay. Reps practise realistic voice calls with AI buyers and get scored feedback instantly.",
   },
-  "/healthcare": {
-    title: "Healthcare Communication Training with AI Simulations | Conversim",
-    description: "Practise realistic patient and clinical conversations with AI-powered voice simulations, instant feedback and repeatable training for healthcare teams.",
-  },
   "/pharma": {
     title: "AI Roleplay for Pharma Sales Reps | Conversim",
     description: "Train medical reps against AI doctors that push back. Unlimited HCP call rehearsal with AI personas built from real objection patterns, scored after every call.",
@@ -30,12 +26,17 @@ function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
-export function fillSeo(html: string, route: string, site = DEFAULT_SITE) {
-  const meta = PAGE_META[route] ?? PAGE_META["/"];
+export function fillSeo(
+  html: string,
+  route: string,
+  site = DEFAULT_SITE,
+  meta = PAGE_META[route] ?? PAGE_META["/"],
+  image = `${site}/favicon.png`,
+) {
   const url = `${site}${route}`;
   return html
     .replaceAll("{{seo:title}}", escapeHtml(meta.title))
     .replaceAll("{{seo:description}}", escapeHtml(meta.description))
     .replaceAll("{{seo:url}}", escapeHtml(url))
-    .replaceAll("{{seo:image}}", escapeHtml(`${site}/favicon.png`));
+    .replaceAll("{{seo:image}}", escapeHtml(image));
 }

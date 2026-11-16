@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { assetUrl } from "../../../lib/assets";
 
 export interface HeroVideoValue {
   video?: { filename?: string; url?: string } | string;
@@ -11,10 +12,6 @@ export interface HeroVideoValue {
   live_label?: string;
 }
 
-function assetUrl(value: HeroVideoValue["video"] | HeroVideoValue["video_poster"]): string {
-  if (typeof value === "string") return value;
-  return value?.filename || value?.url || "";
-}
 
 export default function HeroVideo({ value, children }: { value: HeroVideoValue; children?: ReactNode }) {
   const src = assetUrl(value.video) || value.video_url || "";

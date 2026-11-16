@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { storyblokEditable } from "@storyblok/react";
 import { EASE } from "../../../lib/animations";
+import { assetUrl } from "../../../lib/assets";
 
 interface Asset { filename?: string; alt?: string; }
 
@@ -12,9 +13,6 @@ export interface KeyVisualBlok {
   section_id?: string;
 }
 
-function assetUrl(image?: Asset | string) {
-  return typeof image === "string" ? image : image?.filename;
-}
 
 export default function KeyVisual({ blok }: { blok?: KeyVisualBlok }) {
   if (blok?.visible === false) return null;

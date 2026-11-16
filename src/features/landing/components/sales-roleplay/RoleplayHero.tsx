@@ -4,6 +4,7 @@ import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
+import { useLeadForm } from "@/lib/leads";
 
 const inputClass =
   "bg-aurora-surface-2 border border-aurora-border rounded-xl px-4 py-3 text-sm text-aurora-text placeholder:text-aurora-text-3 focus:border-brand focus:bg-aurora-surface transition-colors";
@@ -20,7 +21,7 @@ export default function RoleplayHero() {
     city: "",
     requirement: "",
   });
-  const [submitted, setSubmitted] = useState(false);
+  const lead = useLeadForm("sales-roleplay-demo");
 
   function update(field: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -29,7 +30,7 @@ export default function RoleplayHero() {
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    void lead.send({ ...form });
   }
 
   return (
@@ -81,7 +82,7 @@ export default function RoleplayHero() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="bg-aurora-surface border border-aurora-border rounded-2xl shadow-lg overflow-hidden"
         >
-          {submitted ? (
+          {lead.done ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 md:p-10 text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
               <h3 className="text-xl font-semibold text-aurora-text">Request Received!</h3>
@@ -167,12 +168,15 @@ export default function RoleplayHero() {
                 onChange={update("requirement")}
               />
 
+              {lead.error && <p role="alert" className="text-sm text-rose-600">{lead.error}</p>}
+
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   type="submit"
+                  disabled={lead.sending}
                   className="w-full py-6 text-sm font-semibold bg-brand hover:bg-brand-hover text-white gap-2 shadow-md"
                 >
-                  Get Free Demo <ArrowRight className="w-4 h-4" />
+                  {lead.sending ? "Sending…" : <>Get Free Demo <ArrowRight className="w-4 h-4" /></>}
                 </Button>
               </motion.div>
             </form>

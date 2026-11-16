@@ -1,3 +1,5 @@
+import { assetUrl } from "../../../lib/assets";
+
 export interface HeroImageValue {
   image?: { filename?: string; url?: string; alt?: string } | string;
   image_url?: string;
@@ -8,10 +10,6 @@ export interface HeroImageValue {
   show_border?: boolean;
 }
 
-function assetUrl(value: HeroImageValue["image"]): string {
-  if (typeof value === "string") return value;
-  return value?.filename || value?.url || "";
-}
 
 export default function HeroImage({ value }: { value: HeroImageValue }) {
   const src = assetUrl(value.image) || value.image_url || "";

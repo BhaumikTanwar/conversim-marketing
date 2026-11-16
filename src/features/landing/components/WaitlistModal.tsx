@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from "react";
 import { Button } from "@/shared/ui/button";
+import { useLeadForm } from "@/lib/leads";
 import { DialogDescription, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 
 interface WaitlistModalProps {
@@ -9,12 +10,12 @@ interface WaitlistModalProps {
 export default function WaitlistModal({ onClose }: WaitlistModalProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const lead = useLeadForm("waitlist");
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name || !email) return;
-    setSubmitted(true);
+    void lead.send({ name, email });
   }
 
   return (
@@ -28,7 +29,7 @@ export default function WaitlistModal({ onClose }: WaitlistModalProps) {
         </DialogDescription>
       </DialogHeader>
 
-      {submitted ? (
+      {lead.done ? (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-6 py-5">
           <div className="flex items-center gap-3 mb-2">
             <span className="material-symbols-outlined text-emerald-600 text-2xl">check_circle</span>
@@ -65,11 +66,13 @@ export default function WaitlistModal({ onClose }: WaitlistModalProps) {
               />
             </div>
 
+            {lead.error && <p role="alert" className="text-sm text-rose-600">{lead.error}</p>}
             <button
               type="submit"
-              className="w-full bg-brand hover:bg-brand-hover text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-[0.97]"
+              disabled={lead.sending}
+              className="w-full disabled:opacity-60 bg-brand hover:bg-brand-hover text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-[0.97]"
             >
-              Join Waitlist
+              {lead.sending ? "Sending…" : "Join Waitlist"}
             </button>
           </form>
 

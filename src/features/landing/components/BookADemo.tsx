@@ -6,6 +6,7 @@ import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { EASE } from "../../../lib/animations";
+import { useLeadForm } from "../../../lib/leads";
 import { sectionContainer, sectionSpacing } from "../sectionStyles";
 import Modal from "./Modal";
 
@@ -44,7 +45,7 @@ const initialForm: DemoFormState = {
 
 export default function BookADemo({ blok }: { blok?: BookADemoBlok }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const lead = useLeadForm("book-a-demo");
   const [form, setForm] = useState<DemoFormState>(initialForm);
 
   if (blok?.visible === false) return null;
@@ -57,12 +58,12 @@ export default function BookADemo({ blok }: { blok?: BookADemoBlok }) {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    void lead.send({ ...form });
   }
 
   function closeModal() {
     setIsOpen(false);
-    setSubmitted(false);
+    lead.reset();
     setForm(initialForm);
   }
 
@@ -93,7 +94,7 @@ export default function BookADemo({ blok }: { blok?: BookADemoBlok }) {
           <h3 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">Book a demo</h3>
           <p className="mt-2 text-sm text-slate-600">30 minutes · No commitment</p>
 
-          {submitted ? (
+          {lead.done ? (
             <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4">
               <p className="text-sm font-semibold text-emerald-800">Request received</p>
               <p className="mt-1 text-sm text-slate-600">
@@ -125,7 +126,8 @@ export default function BookADemo({ blok }: { blok?: BookADemoBlok }) {
                 </Select>
               </div>
               <Textarea value={form.practiceTopic} onChange={update("practiceTopic")} placeholder="What do you want to practise?" rows={3} />
-              <Button type="submit" className="w-full">Request Demo</Button>
+              {lead.error && <p role="alert" className="text-sm text-rose-600">{lead.error}</p>}
+              <Button type="submit" disabled={lead.sending} className="w-full">{lead.sending ? "Sending…" : "Request Demo"}</Button>
             </form>
           )}
         </div>
