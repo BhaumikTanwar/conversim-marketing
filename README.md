@@ -6,7 +6,7 @@ Standalone React, TypeScript, and Vite project for the public Conversim website.
 
 - Storyblok-managed homepage (`conversim-home-cms`) and catch-all CMS pagess.
 - Reusable Storyblok sections: Hero, Use Cases, How It Works, Preview, Pricing, FAQ, and Waitlist, plus the shared Header and Footer.
-- Existing Sales Roleplay, Pharma, Insurance, Privacy, and Terms pages. Healthcare now lives in Storyblok (`industries/healthcare`); `/healthcare` redirects there.
+- Privacy and Terms pages. Industry pages live in Storyblok under `industries/`; the old `/healthcare`, `/sales-roleplay`, `/pharma` and `/insurance` URLs redirect to them (see `firebase.json`).
 - Route-specific HTML metadata for the fixed marketing routes, sitemap generation, and SPA rewrites for dynamic Storyblok slugs.
 - Login, signup, and product-area links routed to the separately hosted app through `VITE_APP_URL`.
 

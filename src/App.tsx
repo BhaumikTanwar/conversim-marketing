@@ -7,9 +7,6 @@ import { APP_ROUTES, toAppUrl } from "./lib/env";
 
 const Landing = lazy(() => import("./features/landing/pages/Landing"));
 const StoryblokPage = lazy(() => import("./features/landing/pages/StoryblokPage"));
-const SalesRoleplay = lazy(() => import("./features/landing/pages/SalesRoleplay"));
-const PharmaLanding = lazy(() => import("./features/landing/pages/PharmaLanding"));
-const InsuranceLanding = lazy(() => import("./features/landing/pages/InsuranceLanding"));
 const Privacy = lazy(() => import("./features/legal/Privacy"));
 const Terms = lazy(() => import("./features/legal/Terms"));
 
@@ -78,9 +75,6 @@ export default function App() {
   const routes = useRoutes([
     { path: "/", element: <Landing /> },
     { path: "/home", element: <HomeRedirect /> },
-    { path: "/sales-roleplay", element: <SalesRoleplay /> },
-    { path: "/pharma", element: <PharmaLanding /> },
-    { path: "/insurance", element: <InsuranceLanding /> },
     { path: "/privacy", element: <Privacy /> },
     { path: "/terms", element: <Terms /> },
     ...APP_ROUTES.map((route) => ({ path: `/${route}/*`, element: <MainAppRedirect /> })),

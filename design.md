@@ -672,10 +672,6 @@ Reserved React routes take priority over Storyblok slugs. Current reserved route
 
 - `/`
 - `/home`
-- `/sales-roleplay`
-- `/healthcare`
-- `/pharma`
-- `/insurance`
 - `/privacy`
 - `/terms`
 - Main-application route families such as `/login`, `/signup`, `/dashboard`, and `/workshops`.

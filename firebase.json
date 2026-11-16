@@ -2,7 +2,12 @@
   "hosting": {
     "public": "dist",
     "cleanUrls": true,
-    "redirects": [{ "source": "/healthcare", "destination": "/industries/healthcare", "type": 301 }],
+    "redirects": [
+      { "source": "/healthcare", "destination": "/industries/healthcare", "type": 301 },
+      { "source": "/sales-roleplay", "destination": "/industries/sales-training", "type": 301 },
+      { "source": "/pharma", "destination": "/industries/medtech", "type": 301 },
+      { "source": "/insurance", "destination": "/industries/banking", "type": 301 }
+    ],
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [{ "source": "**", "destination": "/index.html" }],
     "headers": [

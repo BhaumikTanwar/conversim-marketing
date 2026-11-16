@@ -6,18 +6,6 @@ export const PAGE_META: Record<string, PageMeta> = {
     title: "Conversim | AI Roleplay Voice Training for Sales & Customer Conversations",
     description: "Practice high-stakes conversations with realistic AI voice personas and get rubric-scored feedback after every call. Roleplay training for sales, healthcare, pharma and insurance teams.",
   },
-  "/sales-roleplay": {
-    title: "AI Sales Roleplay Training | Conversim",
-    description: "Sharpen discovery, objection handling and closing with AI sales roleplay. Reps practise realistic voice calls with AI buyers and get scored feedback instantly.",
-  },
-  "/pharma": {
-    title: "AI Roleplay for Pharma Sales Reps | Conversim",
-    description: "Train medical reps against AI doctors that push back. Unlimited HCP call rehearsal with AI personas built from real objection patterns, scored after every call.",
-  },
-  "/insurance": {
-    title: "AI Roleplay for Insurance Sales Agents | Conversim",
-    description: "Train insurance agents against AI customers that push back. Unlimited rehearsal with AI personas built from real objection patterns before facing real prospects.",
-  },
   "/privacy": { title: "Privacy Policy | Conversim", description: "How Conversim collects, uses and protects your data." },
   "/terms": { title: "Terms of Service | Conversim", description: "The terms governing your use of the service." },
 };
