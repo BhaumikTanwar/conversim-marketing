@@ -770,3 +770,52 @@ Icons are optional Material Symbols identifiers, not emoji. Use only the support
 - Reusable landing components: `src/features/landing/components/`
 - Application routing: `src/App.tsx`
 
+## 15. How Storyblok is organised
+
+### Block library: four groups, one naming rule
+
+Every block has an editor-facing name with a prefix that says what it is. Technical names (`hero`, `stat_item` and so on) never change, because pages and code depend on them.
+
+| Group | Name prefix | What it is | Examples |
+|---|---|---|---|
+| 1. Pages & settings | `Page ·`, `Settings ·`, `Content ·` | Whole stories | Website page, Site header & footer |
+| 2. Page sections | `Section ·` | Blocks you add to a page Body, top to bottom | Hero, Challenge with stats, Card grid, Key visual, How it works, Case studies, Logo strip, Book a demo |
+| 3. Section items | `Item ·` | Small parts that live inside a section; not added to a page directly | Statistic, Process step, Case study card, Logo, Certification badge |
+| 4. Header & footer parts | `Header ·`, `Footer ·` | Navigation and footer pieces, edited once in Site settings | Navigation item, Dropdown link, Footer link, Social link |
+
+Every block has a description that says what it does and where to use it, and every field has help text. If a field has none, treat that as a bug.
+
+### Typical page order
+
+Hero, Challenge with stats, Card grid, Key visual (or Product demo video), How it works, Case studies (keep hidden until real results exist), Logo strip, Book a demo.
+
+### Media cheat sheet
+
+| Where | Size and ratio | Format | Keep under |
+|---|---|---|---|
+| Hero video | 1080×1350 px, portrait 4:5, 10-20 s loop, no sound needed | MP4 or WebM | 5 MB |
+| Hero image | 1600×1200 px, 4:3 (wide art: 1920×1080 px) | JPG, PNG, WebP, AVIF | 1 MB |
+| Product demo video (and its poster) | 1920×1080 px, 16:9 | MP4 or WebM; poster JPG/WebP | 10 MB |
+| Key visual | 1920×1080 px, 16:9, content centred | PNG or WebP | 1 MB |
+| Content card, Tab image | 1600×900 px, 16:9 (Split layout 1600×1200 px, 4:3) | JPG, PNG, WebP, AVIF | 1 MB |
+| Case study / Resource card image | 1600×900 px, 16:9 | JPG or WebP | 1 MB |
+| Mini card thumbnail | 1200×675 px, 16:9 | JPG or WebP | 500 KB |
+| Customer / partner logo | ~800×240 px canvas with padding | SVG, or transparent PNG/WebP | 100 KB |
+| Header / footer logo | ~512×128 px, at least 320 px wide | SVG, or transparent PNG/WebP | 100 KB |
+| Author portrait | 400×400 px, 1:1 | JPG, WebP, PNG | 200 KB |
+| Link-preview image (SEO) | 1200×630 px | JPG, WebP, PNG | 300 KB |
+
+Always compress before uploading and write alt text for informative images.
+
+### Media library folders
+
+| Folder | Put here |
+|---|---|
+| logos | Customer, partner and brand logos |
+| Product screenshots & mockups | Screenshots, dashboards, illustrations of the product |
+| Videos | Demo and hero videos |
+| Backgrounds & decoration | Wave art, stock and decorative images |
+| Photos & people | Portraits and team photos |
+
+Moving a file between folders does not change its URL, so pages that use it keep working. Name new files in plain words (`team-coaching-dashboard-1920x1080.png`), not `Screenshot 2026-...` or `chatgpt-image-...`.
+
